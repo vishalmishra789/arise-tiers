@@ -1,0 +1,30 @@
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">ARISE<span>TIERS</span></div>
+    <div class="tagline">Official Tier List</div>
+    <a href="YOUR_DISCORD_LINK" target="_blank" class="discord-btn">JOIN DISCORD</a>
+  </aside>
+
+  <main class="content">
+    <div class="tabs" id="tabContainer">
+      <div class="tab-btn active" onclick="switchTab('overall')"><img src="https://i.ibb.co/YThnm0DD/overall.jpg"><span>Overall</span></div>
+      <div class="tab-btn" onclick="switchTab('sword')"><img src="https://i.ibb.co/4q5XZD1/sword.jpg"><span>Sword</span></div>
+      <div class="tab-btn" onclick="switchTab('mace')"><img src="https://i.ibb.co/DHYd2KcH/mace.jpg"><span>Mace</span></div>
+      <div class="tab-btn" onclick="switchTab('axe')"><img src="https://i.ibb.co/Vc73Q3sV/axe.jpg"><span>Axe</span></div>
+      <div class="tab-btn" onclick="switchTab('uhc')"><img src="https://i.ibb.co/7tWt3CvQ/uhc.jpg"><span>UHC</span></div>
+      <div class="tab-btn" onclick="switchTab('pot')"><img src="https://i.ibb.co/TqvdKKCg/pot.jpg"><span>Pot</span></div>
+      <div class="tab-btn" onclick="switchTab('smp')"><img src="https://i.ibb.co/zhMLjTFK/smp.jpg"><span>SMP</span></div>
+      <div class="tab-btn" onclick="switchTab('nethpot')"><img src="https://i.ibb.co/QRjqZ1d/nethpot.jpg"><span>Nethpot</span></div>
+      <div class="tab-btn" onclick="switchTab('crystal')"><img src="https://i.ibb.co/Qj6Rzzjn/crystal.jpg"><span>Crystal</span></div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="leaderboard">
+        <thead>
+          <tr><th>RANK</th><th>PLAYER</th><th>REGION</th><th>TIERS EARNED</th><th>POINTS</th></tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
