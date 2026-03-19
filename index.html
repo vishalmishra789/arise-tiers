@@ -68,32 +68,41 @@
     };
     const pointsMap = { "HT1": 25, "LT1": 20, "HT2": 16, "LT2": 13, "HT3": 10, "LT3": 6, "HT4": 4, "LT4": 2, "HT5": 1, "LT5": 1 };
 
-    const players = [
-        { ign: "Legend_008", region: "AS", role: "OWNER", tiers: { sword: "HT4", mace: "LT3", crystal: "HT5" } },
-        { ign: "Captain_levi", region: "AS", role: "TESTER", tiers: { axe: "HT4" } },
-        { ign: "Elden_boss", region: "AS", role: "FIGHTER", tiers: { nethpot: "LT4", mace: "LT4", crystal: "HT5" } },
-        { ign: "Viaan58996", region: "AS", role: "FIGHTER", tiers: { crystal: "HT5", mace: "LT4" } },
-        { ign: "Zenkai_Slice", region: "AS", role: "FIGHTER", tiers: { mace: "HT4" } },
-        { ign: "tgbeast_2", region: "AS/AU", role: "TESTER", tiers: { smp: "LT4" } },
-        { ign: "okfiaiaa", region: "AS", role: "FIGHTER", tiers: { crystal: "LT4" } },
-        { ign: "ThunderSlayer_", region: "AS", role: "FIGHTER", tiers: { sword: "HT5" } },
-        { ign: "Richiplayz69_", region: "AS", role: "FIGHTER", tiers: { nethpot: "LT4" } },
-        { ign: "error404__", region: "AS", role: "FIGHTER", tiers: { axe: "HT5" } },
-        { ign: "fr.adarsh", region: "AS", role: "FIGHTER", tiers: { sword: "HT5" } },
-        { ign: "HarshalGamer272", region: "AS", role: "FIGHTER", tiers: { mace: "HT5" } },
-        { ign: "Sora24052", region: "AS", role: "FIGHTER", tiers: { mace: "LT5" } },
-        { ign: "Kinetic18z", region: "AS", role: "FIGHTER", tiers: { mace: "HT5" } },
-        { ign: "AdarshOp7182", region: "AS/AU", role: "FIGHTER", tiers: { mace: "LT5" } }
-    ];
-
+    let players = []; 
     let currentMode = 'overall';
+
+    // FETCH DATA FROM GITHUB
+    async function loadData() {
+        try {
+            // Using a cache-buster (?t=) ensures you always get the newest data after a bot update
+            const response = await fetch(`./tiers.json?t=${Date.now()}`);
+            players = await response.json();
+            render();
+        } catch (error) {
+            console.error("Error loading tiers.json:", error);
+            document.getElementById('leaderboardBody').innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Failed to load data. Make sure tiers.json exists!</td></tr>";
+        }
+    }
+
     function render() {
         const body = document.getElementById('leaderboardBody');
         body.innerHTML = "";
+        
         let list = players.map(p => {
             let score = 0;
-            if (currentMode === 'overall') { Object.values(p.tiers).forEach(t => score += (pointsMap[t.substring(0,3).toUpperCase()] || pointsMap[t.toUpperCase()] || 0)); }
-            else { score = pointsMap[p.tiers[currentMode]?.substring(0,3).toUpperCase()] || pointsMap[p.tiers[currentMode]?.toUpperCase()] || 0; }
+            if (currentMode === 'overall') { 
+                Object.values(p.tiers).forEach(t => {
+                    const tierKey = t.substring(0,3).toUpperCase();
+                    score += (pointsMap[tierKey] || pointsMap[t.toUpperCase()] || 0);
+                }); 
+            }
+            else { 
+                const pTier = p.tiers[currentMode];
+                if (pTier) {
+                    const tierKey = pTier.substring(0,3).toUpperCase();
+                    score = pointsMap[tierKey] || pointsMap[pTier.toUpperCase()] || 0;
+                }
+            }
             return { ...p, score };
         }).filter(p => currentMode === 'overall' || p.tiers[currentMode]).sort((a, b) => b.score - a.score);
 
@@ -101,13 +110,39 @@
             const row = document.createElement('tr');
             row.className = `player-row ${i === 0 ? 'rank-1' : ''}`;
             row.style.animationDelay = `${i * 0.05}s`;
-            const stickers = Object.entries(p.tiers).map(([m, t]) => `<div class="sticker"><img src="${icons[m]}"><span>${t}</span></div>`).join('');
-            row.innerHTML = `<td style="padding-left:25px; font-weight:900;">#${i + 1}</td><td style="display:flex; align-items:center; gap:12px; padding:15px;"><img src="https://mc-heads.net/avatar/${p.ign}/38" style="border-radius:4px;"><div><div class="ign-text">${p.ign}</div><div class="role-text">${p.role}</div></div></td><td style="color:#ff4d4d; font-weight:800; font-size:12px;">${p.region}</td><td><div class="sticker-list">${stickers}</div></td><td style="text-align: right; padding-right: 25px;"><span class="points-pill">${p.score} PTS</span></td>`;
+            
+            const stickers = Object.entries(p.tiers).map(([m, t]) => {
+                const iconUrl = icons[m] || icons['overall'];
+                return `<div class="sticker"><img src="${iconUrl}"><span>${t}</span></div>`;
+            }).join('');
+
+            row.innerHTML = `
+                <td style="padding-left:25px; font-weight:900;">#${i + 1}</td>
+                <td style="display:flex; align-items:center; gap:12px; padding:15px;">
+                    <img src="https://mc-heads.net/avatar/${p.ign}/38" style="border-radius:4px;">
+                    <div>
+                        <div class="ign-text">${p.ign}</div>
+                        <div class="role-text">${p.role || 'Member'}</div>
+                    </div>
+                </td>
+                <td style="color:#ff4d4d; font-weight:800; font-size:12px;">${p.region}</td>
+                <td><div class="sticker-list">${stickers}</div></td>
+                <td style="text-align: right; padding-right: 25px;"><span class="points-pill">${p.score} PTS</span></td>
+            `;
             body.appendChild(row);
         });
     }
-    function switchTab(mode) { currentMode = mode; document.querySelectorAll('.tab-btn').forEach(b => { const txt = b.querySelector('span').innerText.toLowerCase(); b.classList.toggle('active', txt === mode.toLowerCase()); }); render(); }
-    window.onload = render;
+
+    function switchTab(mode) { 
+        currentMode = mode; 
+        document.querySelectorAll('.tab-btn').forEach(b => { 
+            const txt = b.querySelector('span').innerText.toLowerCase(); 
+            b.classList.toggle('active', txt === mode.toLowerCase()); 
+        }); 
+        render(); 
+    }
+
+    window.onload = loadData;
 </script>
 </body>
 </html>
