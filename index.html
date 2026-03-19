@@ -24,11 +24,11 @@
         .leaderboard th { background: #1c1d25; padding: 20px; text-align: left; color: #444; font-size: 12px; text-transform: uppercase; }
         .player-row { border-bottom: 1px solid #1f2029; transition: 0.3s; opacity: 0; animation: fadeIn 0.5s forwards; }
         .rank-1 { border-left: 4px solid var(--gold); background: linear-gradient(90deg, rgba(255,180,0,0.05), transparent) !important; }
-        .sticker-list { display: flex; gap: 8px; }
+        .sticker-list { display: flex; gap: 8px; flex-wrap: wrap; }
         .sticker { width: 45px; height: 45px; background: #000; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .sticker img { width: 100%; height: 100%; object-fit: cover; }
         .sticker span { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); color: var(--gold); font-size: 9px; text-align: center; font-weight: 900; }
-        .points-pill { color: var(--gold); font-weight: 900; background: rgba(255,180,0,0.1); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,180,0,0.2); }
+        .points-pill { color: var(--gold); font-weight: 900; background: rgba(255,180,0,0.1); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,180,0,0.2); white-space: nowrap; }
         .ign-text { font-weight: 800; font-size: 16px; }
         .role-text { font-size: 11px; color: #555; text-transform: uppercase; font-weight: 700; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -71,35 +71,34 @@
     let players = []; 
     let currentMode = 'overall';
 
-    // FETCH DATA FROM GITHUB
     async function loadData() {
         try {
-            // Using a cache-buster (?t=) ensures you always get the newest data after a bot update
             const response = await fetch(`./tiers.json?t=${Date.now()}`);
             players = await response.json();
             render();
         } catch (error) {
             console.error("Error loading tiers.json:", error);
-            document.getElementById('leaderboardBody').innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Failed to load data. Make sure tiers.json exists!</td></tr>";
+            document.getElementById('leaderboardBody').innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px; color:#ff4d4d;'>⚠️ Data not found. Run /postresult in Discord to generate tiers.json!</td></tr>";
         }
     }
 
     function render() {
         const body = document.getElementById('leaderboardBody');
+        if(!body) return;
         body.innerHTML = "";
         
         let list = players.map(p => {
             let score = 0;
             if (currentMode === 'overall') { 
                 Object.values(p.tiers).forEach(t => {
-                    const tierKey = t.substring(0,3).toUpperCase();
+                    const tierKey = t.substring(0,3).trim().toUpperCase();
                     score += (pointsMap[tierKey] || pointsMap[t.toUpperCase()] || 0);
                 }); 
             }
             else { 
-                const pTier = p.tiers[currentMode];
+                const pTier = p.tiers[currentMode] || p.tiers[currentMode.replace('nethpot', 'nethpot')]; 
                 if (pTier) {
-                    const tierKey = pTier.substring(0,3).toUpperCase();
+                    const tierKey = pTier.substring(0,3).trim().toUpperCase();
                     score = pointsMap[tierKey] || pointsMap[pTier.toUpperCase()] || 0;
                 }
             }
@@ -119,13 +118,13 @@
             row.innerHTML = `
                 <td style="padding-left:25px; font-weight:900;">#${i + 1}</td>
                 <td style="display:flex; align-items:center; gap:12px; padding:15px;">
-                    <img src="https://mc-heads.net/avatar/${p.ign}/38" style="border-radius:4px;">
+                    <img src="https://mc-heads.net/avatar/${p.ign}/38" style="border-radius:4px;" onerror="this.src='https://mc-heads.net/avatar/Steve/38'">
                     <div>
                         <div class="ign-text">${p.ign}</div>
                         <div class="role-text">${p.role || 'Member'}</div>
                     </div>
                 </td>
-                <td style="color:#ff4d4d; font-weight:800; font-size:12px;">${p.region}</td>
+                <td style="color:#ff4d4d; font-weight:800; font-size:12px;">${p.region || '??'}</td>
                 <td><div class="sticker-list">${stickers}</div></td>
                 <td style="text-align: right; padding-right: 25px;"><span class="points-pill">${p.score} PTS</span></td>
             `;
@@ -137,6 +136,7 @@
         currentMode = mode; 
         document.querySelectorAll('.tab-btn').forEach(b => { 
             const txt = b.querySelector('span').innerText.toLowerCase(); 
+            // Handles both nethpot and general tabs
             b.classList.toggle('active', txt === mode.toLowerCase()); 
         }); 
         render(); 
