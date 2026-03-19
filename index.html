@@ -1,7 +1,79 @@
-<div class="app-container">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arise Tier List</title>
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --panel: #16171d;
+            --border: #2a2b33;
+            --gold: #ffb400;
+            --discord: #5865F2;
+        }
+
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; }
+
+        /* SIDEBAR */
+        .sidebar { 
+            width: 260px; height: 100vh; background: #000; padding: 20px; 
+            border-right: 1px solid var(--border); position: fixed; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        .sidebar-logo { width: 190px; margin-bottom: 20px; }
+        .discord-btn { 
+            width: 90%; background: var(--discord); color: #fff; text-decoration: none; 
+            padding: 12px; border-radius: 8px; text-align: center; font-weight: 800; 
+        }
+
+        /* MAIN CONTENT */
+        .content { margin-left: 300px; padding: 40px; flex-grow: 1; }
+
+        /* TOP STICKERS - FIXED SIZE */
+        .tabs { 
+            display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; 
+            background: var(--panel); padding: 15px; border-radius: 12px; border: 1px solid var(--border); 
+        }
+        .tab-btn { 
+            background: #000; border: 2px solid #222; padding: 10px; border-radius: 12px; 
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 75px; 
+        }
+        .tab-btn img { width: 35px !important; height: 35px !important; object-fit: cover; border-radius: 4px; }
+        .tab-btn span { font-size: 10px; font-weight: 800; margin-top: 5px; color: #777; text-transform: uppercase; }
+        .tab-btn.active { border-color: var(--gold); background: #1a1b23; }
+        .tab-btn.active span { color: var(--gold); }
+
+        /* TABLE */
+        .table-wrapper { background: var(--panel); border-radius: 15px; border: 1px solid var(--border); overflow: hidden; }
+        .leaderboard { width: 100%; border-collapse: collapse; }
+        .leaderboard th { background: #1c1d25; padding: 15px; text-align: left; color: #444; font-size: 11px; }
+        .player-row { border-bottom: 1px solid #1f2029; }
+        
+        /* RANK #1 GOLD */
+        .rank-1 { background: linear-gradient(90deg, rgba(255,180,0,0.1), transparent) !important; border-left: 4px solid var(--gold); }
+
+        /* LEADERBOARD STICKERS - FIXED SIZE */
+        .sticker-list { display: flex; gap: 8px; }
+        .sticker { 
+            width: 45px !important; height: 45px !important; background: #000; border-radius: 50%; 
+            border: 2px solid #333; display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden;
+        }
+        .sticker img { width: 100% !important; height: 100% !important; object-fit: cover; }
+        .sticker span { 
+            position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); 
+            color: var(--gold); font-size: 9px; text-align: center; font-weight: 900; 
+        }
+
+        .points-pill { color: var(--gold); font-weight: 800; background: rgba(255,180,0,0.1); padding: 5px 12px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" style="display:flex; width:100%;">
   <aside class="sidebar">
-    <div class="logo">ARISE<span>TIERS</span></div>
-    <div class="tagline">Official Tier List</div>
+    <img src="https://i.ibb.co/zWLGpSq0/407408dc39428870d634ec705839589e-1.webp" class="sidebar-logo">
     <a href="YOUR_DISCORD_LINK" target="_blank" class="discord-btn">JOIN DISCORD</a>
   </aside>
 
@@ -28,3 +100,81 @@
     </div>
   </main>
 </div>
+
+<script>
+const icons = {
+  overall: "https://i.ibb.co/YThnm0DD/overall.jpg",
+  sword: "https://i.ibb.co/4q5XZD1/sword.jpg",
+  mace: "https://i.ibb.co/DHYd2KcH/mace.jpg",
+  axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg",
+  uhc: "https://i.ibb.co/7tWt3CvQ/uhc.jpg",
+  pot: "https://i.ibb.co/TqvdKKCg/pot.jpg",
+  smp: "https://i.ibb.co/zhMLjTFK/smp.jpg",
+  nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg",
+  crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg"
+};
+
+const pointValues = { "HT1": 25, "LT1": 20, "HT2": 16, "LT2": 13, "HT3": 10, "LT3": 6, "HT4": 4, "LT4": 2, "HT5": 1, "LT5": 1 };
+
+const players = [
+  { ign: "Legend_008", region: "AS", role: "OWNER", tiers: { sword: "HT4", mace: "LT3", crystal: "HT5" } },
+  { ign: "Elden_Boss", region: "AS", role: "APPRENTICE", tiers: { nethpot: "LT4", mace: "LT4", crystal: "HT5" } },
+  { ign: "tgbeast_2", region: "AS/AU", role: "FIGHTER", tiers: { smp: "LT3" } },
+  { ign: "XtremeGamerOP_", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
+  { ign: "Crotoov", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
+  { ign: "Not_Rohit_yt", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
+  { ign: "Vlaan58996", region: "AS", role: "APPRENTICE", tiers: { nethpot: "HT5", mace: "LT4" } }
+];
+
+let currentMode = 'overall';
+
+function render() {
+  const body = document.getElementById('leaderboardBody');
+  body.innerHTML = "";
+  
+  let list = players.map(p => {
+    let score = 0;
+    if (currentMode === 'overall') {
+      Object.values(p.tiers).forEach(t => score += (pointValues[t] || 0));
+    } else {
+      score = pointValues[p.tiers[currentMode]] || 0;
+    }
+    return { ...p, score };
+  })
+  .filter(p => currentMode === 'overall' || p.tiers[currentMode])
+  .sort((a, b) => b.score - a.score);
+
+  list.forEach((p, i) => {
+    const row = document.createElement('tr');
+    row.className = `player-row ${i === 0 ? 'rank-1' : ''}`;
+    
+    const stickersHtml = currentMode === 'overall' 
+      ? Object.entries(p.tiers).map(([m, t]) => `<div class="sticker"><img src="${icons[m]}"><span>${t}</span></div>`).join('')
+      : `<div class="sticker"><img src="${icons[currentMode]}"><span>${p.tiers[currentMode]}</span></div>`;
+
+    row.innerHTML = `
+      <td style="padding-left:25px; font-weight:900;">#${i + 1}</td>
+      <td style="display:flex; align-items:center; gap:12px; padding:15px;">
+        <img src="https://mc-heads.net/avatar/${p.ign}/42" style="border-radius:4px;">
+        <div><div style="font-weight:800;">${p.ign}</div><div style="font-size:10px; color:#555;">${p.role}</div></div>
+      </td>
+      <td style="color:#ff4d4d; font-weight:800; font-size:11px;">${p.region}</td>
+      <td><div class="sticker-list">${stickersHtml}</div></td>
+      <td><span class="points-pill">${p.score} PTS</span></td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+function switchTab(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    const txt = b.querySelector('span').innerText.toLowerCase();
+    b.classList.toggle('active', txt === mode.toLowerCase());
+  });
+  render();
+}
+window.onload = render;
+</script>
+</body>
+</html>
