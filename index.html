@@ -3,36 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arise Tiers | Official</title>
+    <title>Arise Tiers | Official Leaderboard</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
         :root {
             --bg: #0b0c10;
             --panel: #16171d;
             --border: #2a2b33;
             --gold: #ffb400;
             --discord: #5865F2;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; display: flex; min-height: 100vh; }
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-        /* SIDEBAR - FIXED WIDTH FOR LOGO */
+        /* SIDEBAR */
         .sidebar { 
             width: 280px; height: 100vh; background: #000; padding: 25px; 
             border-right: 1px solid var(--border); position: fixed; 
             display: flex; flex-direction: column; align-items: center; z-index: 100;
         }
-        .sidebar-logo { width: 100%; max-width: 220px; margin-bottom: 25px; border-radius: 12px; }
+        .sidebar-logo { 
+            width: 100%; max-width: 220px; margin-bottom: 25px; border-radius: 12px; 
+            animation: fadeInDown 0.8s ease;
+        }
         .discord-btn { 
             width: 100%; background: var(--discord); color: #fff; text-decoration: none; 
             padding: 14px; border-radius: 10px; text-align: center; font-weight: 800; 
-            font-size: 14px; letter-spacing: 1px; transition: 0.3s;
+            font-size: 14px; letter-spacing: 1px; transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.2);
         }
-        .discord-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        .discord-btn:hover { background: #4752c4; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4); }
 
-        /* MAIN CONTENT - PUSHED RIGHT */
-        .content { margin-left: 330px; padding: 50px 40px; width: calc(100% - 370px); }
+        /* MAIN CONTENT */
+        .content { margin-left: 330px; padding: 50px 40px; width: calc(100% - 370px); animation: fadeIn 1s ease; }
 
-        /* TOP NAVIGATION STICKERS */
+        /* TAB ANIMATIONS */
         .tabs { 
             display: flex; gap: 15px; margin-bottom: 35px; flex-wrap: wrap; 
             background: var(--panel); padding: 20px; border-radius: 15px; border: 1px solid var(--border); 
@@ -40,48 +55,63 @@
         .tab-btn { 
             background: #0a0a0c; border: 2px solid #222; padding: 12px; border-radius: 14px; 
             cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 85px; 
-            transition: 0.2s;
+            transition: var(--transition);
         }
-        .tab-btn img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
+        .tab-btn img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; transition: var(--transition); }
         .tab-btn span { font-size: 11px; font-weight: 800; color: #666; text-transform: uppercase; }
-        .tab-btn:hover { border-color: #444; }
-        .tab-btn.active { border-color: var(--gold); background: #1a1b23; box-shadow: 0 0 15px rgba(255, 180, 0, 0.1); }
+        
+        .tab-btn:hover { border-color: #555; transform: scale(1.05); }
+        .tab-btn:hover img { filter: brightness(1.2); }
+        .tab-btn.active { border-color: var(--gold); background: #1a1b23; box-shadow: 0 0 20px rgba(255, 180, 0, 0.15); }
         .tab-btn.active span { color: var(--gold); }
 
-        /* LEADERBOARD TABLE */
-        .table-wrapper { background: var(--panel); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+        /* TABLE ANIMATIONS */
+        .table-wrapper { 
+            background: var(--panel); border-radius: 20px; border: 1px solid var(--border); 
+            overflow: hidden; animation: slideUp 0.6s ease-out;
+        }
         .leaderboard { width: 100%; border-collapse: collapse; min-width: 800px; }
         .leaderboard th { background: #1c1d25; padding: 20px; text-align: left; color: #555; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        .player-row { border-bottom: 1px solid #1f2029; transition: 0.2s; }
-        .player-row:hover { background: rgba(255,255,255,0.02); }
         
-        /* RANK 1 HIGHLIGHT */
-        .rank-1 { background: linear-gradient(90deg, rgba(255,180,0,0.05), transparent) !important; border-left: 4px solid var(--gold); }
+        .player-row { border-bottom: 1px solid #1f2029; transition: var(--transition); opacity: 0; animation: fadeInRow 0.5s forwards; }
+        .player-row:hover { background: rgba(255,255,255,0.03); transform: scale(1.002); }
+        
+        /* RANK 1 EFFECT */
+        .rank-1 { background: linear-gradient(90deg, rgba(255,180,0,0.08), transparent) !important; border-left: 4px solid var(--gold); }
+        .rank-1 .points-pill { box-shadow: 0 0 15px rgba(255, 180, 0, 0.3); }
 
-        /* LIST STICKERS */
+        /* STICKER STYLING */
         .sticker-list { display: flex; gap: 10px; }
         .sticker { 
-            width: 50px; height: 50px; background: #000; border-radius: 50%; 
+            width: 48px; height: 48px; background: #000; border-radius: 50%; 
             border: 2px solid #333; display: flex; align-items: center; justify-content: center; 
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; transition: var(--transition);
         }
+        .sticker:hover { transform: translateY(-5px) rotate(5deg); border-color: var(--gold); }
         .sticker img { width: 100%; height: 100%; object-fit: cover; }
         .sticker span { 
             position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.85); 
             color: var(--gold); font-size: 10px; text-align: center; font-weight: 900; padding: 2px 0;
         }
 
-        .points-pill { color: var(--gold); font-weight: 900; background: rgba(255,180,0,0.15); padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(255,180,0,0.2); }
+        .points-pill { color: var(--gold); font-weight: 900; background: rgba(255,180,0,0.15); padding: 8px 18px; border-radius: 12px; border: 1px solid rgba(255,180,0,0.3); transition: var(--transition); }
         .region-tag { color: #ff4d4d; font-weight: 800; font-size: 12px; }
-        .ign-text { font-weight: 800; font-size: 16px; margin-bottom: 2px; }
-        .role-text { font-size: 11px; color: #555; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .ign-text { font-weight: 800; font-size: 16px; margin-bottom: 2px; letter-spacing: 0.5px; }
+        .role-text { font-size: 11px; color: #555; text-transform: uppercase; font-weight: 700; }
+
+        /* KEYFRAMES */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInRow { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
     <img src="https://i.ibb.co/zWLGpSq0/407408dc39428870d634ec705839589e-1.webp" class="sidebar-logo">
-    <a href="YOUR_DISCORD_LINK" target="_blank" class="discord-btn">JOIN DISCORD</a>
+    <a href="https://discord.gg/msDP8m7UBP" target="_blank" class="discord-btn">JOIN DISCORD</a>
 </aside>
 
 <main class="content">
@@ -104,8 +134,8 @@
                     <th style="padding-left: 30px; width: 80px;">Rank</th>
                     <th>Player Profile</th>
                     <th>Region</th>
-                    <th>Tiers</th>
-                    <th style="text-align: right; padding-right: 30px;">Total Points</th>
+                    <th>Tiers Earned</th>
+                    <th style="text-align: right; padding-right: 30px;">Points</th>
                 </tr>
             </thead>
             <tbody id="leaderboardBody"></tbody>
@@ -116,17 +146,16 @@
 <script>
     const icons = {
         overall: "https://i.ibb.co/YThnm0DD/overall.jpg",
-        sword: "https://i.ibb.co/4q5XZD1/sword.jpg",
-        mace: "https://i.ibb.co/DHYd2KcH/mace.jpg",
-        axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg",
-        uhc: "https://i.ibb.co/7tWt3CvQ/uhc.jpg",
-        pot: "https://i.ibb.co/TqvdKKCg/pot.jpg",
-        smp: "https://i.ibb.co/zhMLjTFK/smp.jpg",
-        nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg",
-        crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg"
+        sword: "https://i.ibb.co/4q5XZD1/sword.jpg", mace: "https://i.ibb.co/DHYd2KcH/mace.jpg",
+        axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", uhc: "https://i.ibb.co/7tWt3CvQ/uhc.jpg",
+        pot: "https://i.ibb.co/TqvdKKCg/pot.jpg", smp: "https://i.ibb.co/zhMLjTFK/smp.jpg",
+        nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg"
     };
 
-    const pointValues = { "HT1": 25, "LT1": 20, "HT2": 16, "LT2": 13, "HT3": 10, "LT3": 6, "HT4": 4, "LT4": 2, "HT5": 1, "LT5": 1 };
+    const pointValues = { 
+        "HT1": 25, "LT1": 20, "HT2": 16, "LT2": 13, "HT3": 10, 
+        "LT3": 6, "HT4": 4, "LT4": 2, "HT5": 1, "LT5": 1 
+    };
 
     const players = [
         { ign: "Legend_008", region: "AS", role: "OWNER", tiers: { sword: "HT4", mace: "LT3", crystal: "HT5" } },
@@ -134,7 +163,11 @@
         { ign: "XtremeGamerOP_", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
         { ign: "Crotoov", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
         { ign: "Not_Rohit_yt", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
+        { ign: "TECHTYAGI_", region: "AS/AU", role: "FIGHTER", tiers: { sword: "LT3" } },
+        { ign: "_realmiss", region: "EU", role: "FIGHTER", tiers: { sword: "LT3" } },
         { ign: "Elden_Boss", region: "AS", role: "APPRENTICE", tiers: { nethpot: "LT4", mace: "LT4", crystal: "HT5" } },
+        { ign: "Zenkai_Slice", region: "AS", role: "FIGHTER", tiers: { mace: "HT4" } },
+        { ign: "Captain_levi", region: "AS", role: "APPRENTICE", tiers: { axe: "HT4" } },
         { ign: "Vlaan58996", region: "AS", role: "APPRENTICE", tiers: { nethpot: "HT5", mace: "LT4" } }
     ];
 
@@ -159,6 +192,7 @@
         list.forEach((p, i) => {
             const row = document.createElement('tr');
             row.className = `player-row ${i === 0 ? 'rank-1' : ''}`;
+            row.style.animationDelay = `${i * 0.05}s`;
             
             const stickersHtml = currentMode === 'overall' 
                 ? Object.entries(p.tiers).map(([m, t]) => `<div class="sticker"><img src="${icons[m]}"><span>${t}</span></div>`).join('')
@@ -166,8 +200,8 @@
 
             row.innerHTML = `
                 <td style="padding-left:30px; font-weight:900; color: ${i === 0 ? 'var(--gold)' : '#444'};">#${i + 1}</td>
-                <td style="display:flex; align-items:center; gap:15px; padding:20px;">
-                    <img src="https://mc-heads.net/avatar/${p.ign}/45" style="border-radius:8px; border: 1px solid #333;">
+                <td style="display:flex; align-items:center; gap:15px; padding:18px;">
+                    <img src="https://mc-heads.net/avatar/${p.ign}/42" style="border-radius:6px; border: 1px solid #333;">
                     <div>
                         <div class="ign-text">${p.ign}</div>
                         <div class="role-text">${p.role}</div>
