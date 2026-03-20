@@ -24,11 +24,11 @@
         .leaderboard th { background: #1c1d25; padding: 20px; text-align: left; color: #444; font-size: 12px; text-transform: uppercase; }
         .player-row { border-bottom: 1px solid #1f2029; transition: 0.3s; opacity: 0; animation: fadeIn 0.5s forwards; }
         .rank-1 { border-left: 4px solid var(--gold); background: linear-gradient(90deg, rgba(255,180,0,0.05), transparent) !important; }
-        .sticker-list { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sticker-list { display: flex; gap: 8px; }
         .sticker { width: 45px; height: 45px; background: #000; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .sticker img { width: 100%; height: 100%; object-fit: cover; }
         .sticker span { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); color: var(--gold); font-size: 9px; text-align: center; font-weight: 900; }
-        .points-pill { color: var(--gold); font-weight: 900; background: rgba(255,180,0,0.1); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,180,0,0.2); white-space: nowrap; }
+        .points-pill { color: var(--gold); font-weight: 900; background: rgba(255,180,0,0.1); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,180,0,0.2); }
         .ign-text { font-weight: 800; font-size: 16px; }
         .role-text { font-size: 11px; color: #555; text-transform: uppercase; font-weight: 700; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -68,40 +68,32 @@
     };
     const pointsMap = { "HT1": 25, "LT1": 20, "HT2": 16, "LT2": 13, "HT3": 10, "LT3": 6, "HT4": 4, "LT4": 2, "HT5": 1, "LT5": 1 };
 
-    let players = []; 
+    const players = [
+        { ign: "Legend_008", region: "AS", role: "OWNER", tiers: { sword: "HT4", mace: "LT3", crystal: "HT5" } },
+        { ign: "Captain_levi", region: "AS", role: "TESTER", tiers: { axe: "HT4" } },
+        { ign: "eldenbossofficial", region: "AS", role: "FIGHTER", tiers: { nethpot: "LT4", mace: "LT4", crystal: "HT5" } },
+        { ign: "Viaan58996", region: "AS", role: "FIGHTER", tiers: { crystal: "HT5", mace: "LT4" } },
+        { ign: "Zenkai_Slice", region: "AS", role: "FIGHTER", tiers: { mace: "HT4" } },
+        { ign: "tgbeast_2", region: "AS/AU", role: "TESTER", tiers: { smp: "LT4" } },
+        { ign: "okfiaiaa", region: "AS", role: "FIGHTER", tiers: { crystal: "LT4" } },
+        { ign: "ThunderSlayer_", region: "AS", role: "FIGHTER", tiers: { sword: "HT5" } },
+        { ign: "Richiplayz69_", region: "AS", role: "FIGHTER", tiers: { nethpot: "LT4" } },
+        { ign: "exe.error404__", region: "AS", role: "FIGHTER", tiers: { axe: "HT5" } },
+        { ign: "fr.adarsh", region: "AS", role: "FIGHTER", tiers: { sword: "HT5" } },
+        { ign: "HarshalGamer272", region: "AS", role: "FIGHTER", tiers: { mace: "HT5" } },
+        { ign: "Sora24052", region: "AS", role: "FIGHTER", tiers: { mace: "LT5" } },
+        { ign: "Kinetic18z", region: "AS", role: "FIGHTER", tiers: { mace: "HT5" } },
+        { ign: "AdarshOp7182", region: "AS/AU", role: "FIGHTER", tiers: { mace: "LT5" } }
+    ];
+
     let currentMode = 'overall';
-
-    async function loadData() {
-        try {
-            const response = await fetch(`./tiers.json?t=${Date.now()}`);
-            players = await response.json();
-            render();
-        } catch (error) {
-            console.error("Error loading tiers.json:", error);
-            document.getElementById('leaderboardBody').innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px; color:#ff4d4d;'>⚠️ Data not found. Run /postresult in Discord to generate tiers.json!</td></tr>";
-        }
-    }
-
     function render() {
         const body = document.getElementById('leaderboardBody');
-        if(!body) return;
         body.innerHTML = "";
-        
         let list = players.map(p => {
             let score = 0;
-            if (currentMode === 'overall') { 
-                Object.values(p.tiers).forEach(t => {
-                    const tierKey = t.substring(0,3).trim().toUpperCase();
-                    score += (pointsMap[tierKey] || pointsMap[t.toUpperCase()] || 0);
-                }); 
-            }
-            else { 
-                const pTier = p.tiers[currentMode] || p.tiers[currentMode.replace('nethpot', 'nethpot')]; 
-                if (pTier) {
-                    const tierKey = pTier.substring(0,3).trim().toUpperCase();
-                    score = pointsMap[tierKey] || pointsMap[pTier.toUpperCase()] || 0;
-                }
-            }
+            if (currentMode === 'overall') { Object.values(p.tiers).forEach(t => score += (pointsMap[t.substring(0,3).toUpperCase()] || pointsMap[t.toUpperCase()] || 0)); }
+            else { score = pointsMap[p.tiers[currentMode]?.substring(0,3).toUpperCase()] || pointsMap[p.tiers[currentMode]?.toUpperCase()] || 0; }
             return { ...p, score };
         }).filter(p => currentMode === 'overall' || p.tiers[currentMode]).sort((a, b) => b.score - a.score);
 
@@ -109,40 +101,13 @@
             const row = document.createElement('tr');
             row.className = `player-row ${i === 0 ? 'rank-1' : ''}`;
             row.style.animationDelay = `${i * 0.05}s`;
-            
-            const stickers = Object.entries(p.tiers).map(([m, t]) => {
-                const iconUrl = icons[m] || icons['overall'];
-                return `<div class="sticker"><img src="${iconUrl}"><span>${t}</span></div>`;
-            }).join('');
-
-            row.innerHTML = `
-                <td style="padding-left:25px; font-weight:900;">#${i + 1}</td>
-                <td style="display:flex; align-items:center; gap:12px; padding:15px;">
-                    <img src="https://mc-heads.net/avatar/${p.ign}/38" style="border-radius:4px;" onerror="this.src='https://mc-heads.net/avatar/Steve/38'">
-                    <div>
-                        <div class="ign-text">${p.ign}</div>
-                        <div class="role-text">${p.role || 'Member'}</div>
-                    </div>
-                </td>
-                <td style="color:#ff4d4d; font-weight:800; font-size:12px;">${p.region || '??'}</td>
-                <td><div class="sticker-list">${stickers}</div></td>
-                <td style="text-align: right; padding-right: 25px;"><span class="points-pill">${p.score} PTS</span></td>
-            `;
+            const stickers = Object.entries(p.tiers).map(([m, t]) => `<div class="sticker"><img src="${icons[m]}"><span>${t}</span></div>`).join('');
+            row.innerHTML = `<td style="padding-left:25px; font-weight:900;">#${i + 1}</td><td style="display:flex; align-items:center; gap:12px; padding:15px;"><img src="https://mc-heads.net/avatar/${p.ign}/38" style="border-radius:4px;"><div><div class="ign-text">${p.ign}</div><div class="role-text">${p.role}</div></div></td><td style="color:#ff4d4d; font-weight:800; font-size:12px;">${p.region}</td><td><div class="sticker-list">${stickers}</div></td><td style="text-align: right; padding-right: 25px;"><span class="points-pill">${p.score} PTS</span></td>`;
             body.appendChild(row);
         });
     }
-
-    function switchTab(mode) { 
-        currentMode = mode; 
-        document.querySelectorAll('.tab-btn').forEach(b => { 
-            const txt = b.querySelector('span').innerText.toLowerCase(); 
-            // Handles both nethpot and general tabs
-            b.classList.toggle('active', txt === mode.toLowerCase()); 
-        }); 
-        render(); 
-    }
-
-    window.onload = loadData;
+    function switchTab(mode) { currentMode = mode; document.querySelectorAll('.tab-btn').forEach(b => { const txt = b.querySelector('span').innerText.toLowerCase(); b.classList.toggle('active', txt === mode.toLowerCase()); }); render(); }
+    window.onload = render;
 </script>
 </body>
 </html>
