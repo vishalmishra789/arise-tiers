@@ -15,10 +15,7 @@
             --gold-glow: rgba(255, 180, 0, 0.2);
             --text-dim: #929292;
             --discord: #5865F2;
-            --online: #43b581;
-            --idle: #faa61a;
-            --dnd: #f04747;
-            --offline: #747f8d;
+            --online: #43b581; --idle: #faa61a; --dnd: #f04747; --offline: #747f8d;
         }
 
         * { box-sizing: border-box; scroll-behavior: smooth; outline: none; }
@@ -61,23 +58,37 @@
             border-radius: 12px; font-weight: 800; font-size: 11px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s;
         }
         .gm-btn.active { background: #1c1d23; border-color: var(--gold); color: #fff; }
-        .gm-btn img { width: 20px; height: 20px; }
+        .gm-btn img { width: 20px; height: 20px; border-radius: 4px; }
         
         .rank-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         .player-row { background: var(--panel); }
         .player-row td { padding: 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .player-row td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 15px; border-bottom-left-radius: 15px; }
+        .player-row td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 15px; border-bottom-left-radius: 15px; text-align: center; }
         .player-row td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 15px; border-bottom-right-radius: 15px; }
-        .tier-pill { display: inline-flex; align-items: center; gap: 8px; background: #000; padding: 8px 14px; border-radius: 10px; border: 1px solid #222; font-size: 12px; font-weight: 900; color: var(--gold); margin: 2px; }
-        .tier-pill img { width: 18px; height: 18px; }
+        
+        /* Rank Badges */
+        .rank-badge { padding: 6px 12px; border-radius: 8px; font-weight: 900; }
+        .gold-rank { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold-glow); }
+        .silver-rank { background: #d1d1d1; color: #000; }
+        .bronze-rank { background: #cd7f32; color: #fff; }
 
-        /* --- TESTERS (LANYARD) --- */
+        .tier-pill { display: inline-flex; align-items: center; gap: 8px; background: #000; padding: 8px 14px; border-radius: 10px; border: 1px solid #222; font-size: 12px; font-weight: 900; color: var(--gold); margin: 2px; }
+        .tier-pill img { width: 18px; height: 18px; border-radius: 3px; }
+
+        /* --- TESTERS (SUPERIOR OWNER) --- */
         .tester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .tester-card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 20px; position: relative; transition: 0.3s; }
+        .owner-superior { 
+            grid-column: 1 / -1; 
+            background: linear-gradient(145deg, #0d0e12, #1a1b23); 
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 30px rgba(255, 180, 0, 0.1);
+        }
         .tester-card:hover { border-color: var(--gold); transform: translateY(-3px); }
         .status-badge { position: absolute; top: 20px; right: 20px; font-size: 9px; font-weight: 900; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
         .status-dot { width: 10px; height: 10px; border-radius: 50%; }
         .tester-avatar { width: 60px; height: 60px; border-radius: 15px; border: 2px solid #1f2026; }
+        .owner-avatar { width: 80px; height: 80px; border: 2px solid var(--gold); }
 
         /* --- CARDS --- */
         .card { background: var(--panel); border: 1px solid var(--border); padding: 30px; border-radius: 20px; margin-bottom: 20px; }
@@ -127,7 +138,7 @@
             <div class="gm-btn" onclick="setGM('UHC')"><img src="https://i.ibb.co/7tWt3CvQ/uhc.jpg"> UHC</div>
         </div>
         <table class="rank-table">
-            <thead><tr style="text-align:left; font-size:11px; color:var(--text-dim);"><th style="padding-left:20px;"># RANK</th><th>PLAYER</th><th>PTS</th><th>REG</th><th style="text-align:right; padding-right:20px;">TIER</th></tr></thead>
+            <thead><tr style="text-align:left; font-size:11px; color:var(--text-dim);"><th style="padding-left:20px;"># RANK</th><th>PLAYER</th><th>POINTS</th><th>REGION</th><th style="text-align:right; padding-right:20px;">TIERS</th></tr></thead>
             <tbody id="pBody"></tbody>
         </table>
     </div>
@@ -138,38 +149,40 @@
     </div>
 
     <div id="guide" class="page"><div class="tester-grid" id="guide-list"></div></div>
-
     <div id="rules" class="page"><div id="rules-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;"></div></div>
 
 </div>
 
 <script>
+    // --- 40-POINT SCALE SYSTEM ---
+    const scale = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1 };
+
     const players = [
-        { ign: "Legend_008", reg: "AS", tiers: { Mace: "LT3", Sword: "HT4", Crystal: "HT5" }, pts: 15 },
-        { ign: "Zenkai_slice", reg: "AS", tiers: { Mace: "HT4" }, pts: 10 },
-        { ign: "okfiaiaa", reg: "AS", tiers: { Crystal: "LT4" }, pts: 8 },
-        { ign: "ThunderSlayer_", reg: "AS", tiers: { Sword: "HT5" }, pts: 5 },
-        { ign: "Elden_Boss", reg: "AS", tiers: { Nethpot: "LT4", Crystal: "HT5" }, pts: 8 },
-        { ign: "Richiplayz69_", reg: "AS", tiers: { Nethpot: "LT4" }, pts: 4 },
-        { ign: "HarshalGamer272", reg: "AS", tiers: { Mace: "HT5" }, pts: 3 },
-        { ign: "Viaan58996", reg: "AS", tiers: { Crystal: "HT5", Mace: "LT4" }, pts: 7 },
-        { ign: "Sora24052", reg: "AS", tiers: { Mace: "LT5" }, pts: 1 },
-        { ign: "kinetic18z", reg: "AS", tiers: { Mace: "HT5" }, pts: 3 },
-        { ign: "AdarshOp7182", reg: "AS", tiers: { Mace: "LT5" }, pts: 1 },
-        { ign: "tgbeast_2", reg: "AS", tiers: { SMP: "LT4" }, pts: 4 },
-        { ign: "Kratoz3377", reg: "AS", tiers: { Axe: "HT5" }, pts: 3 },
-        { ign: "TSprogamer777", reg: "AS", tiers: { Mace: "LT5" }, pts: 1 },
-        { ign: "Captain_levi", reg: "AS", tiers: { Axe: "HT4" }, pts: 6 },
-        { ign: "Error__", reg: "AS", tiers: { Axe: "HT5" }, pts: 3 }
+        { ign: "Legend_008", reg: "AS", tiers: { Mace: "LT3", Sword: "HT4", Crystal: "HT5" } },
+        { ign: "Zenkai_slice", reg: "AS", tiers: { Mace: "HT4" } },
+        { ign: "okfiaiaa", reg: "AS", tiers: { Crystal: "LT4" } },
+        { ign: "ThunderSlayer_", reg: "AS", tiers: { Sword: "HT5" } },
+        { ign: "Elden_Boss", reg: "AS", tiers: { Nethpot: "LT4", Crystal: "HT5" } },
+        { ign: "Richiplayz69_", reg: "AS", tiers: { Nethpot: "LT4" } },
+        { ign: "HarshalGamer272", reg: "AS", tiers: { Mace: "HT5" } },
+        { ign: "Viaan58996", reg: "AS", tiers: { Crystal: "HT5", Mace: "LT4" } },
+        { ign: "Sora24052", reg: "AS", tiers: { Mace: "LT5" } },
+        { ign: "kinetic18z", reg: "AS", tiers: { Mace: "HT5" } },
+        { ign: "AdarshOp7182", reg: "AS", tiers: { Mace: "LT5" } },
+        { ign: "tgbeast_2", reg: "AS", tiers: { SMP: "LT4" } },
+        { ign: "Kratoz3377", reg: "AS", tiers: { Axe: "HT5" } },
+        { ign: "TSprogamer777", reg: "AS", tiers: { Mace: "LT5" } },
+        { ign: "Captain_levi", reg: "AS", tiers: { Axe: "HT4" } },
+        { ign: "Error__", reg: "AS", tiers: { Axe: "HT5" } }
     ];
 
-    // --- UPDATED TESTER IDS ---
     const testerData = [
         { id: "1409520340136099904", role: "Owner" },
-        { id: "1418664513330217002", role: "Tester 2" },
-        { id: "953672158687670352", role: "Tester 3" },
-        { id: "782492818479906828", role: "Tester 4" },
-        { id: "1377586496672108614", role: "Tester 5" }
+        { id: "1418664513330217002", role: "Tester" },
+        { id: "953672158687670352", role: "Tester" },
+        { id: "782492818479906828", role: "Tester" },
+        { id: "1377586496672108614", role: "Tester" },
+        { id: "905109035211194388", role: "Tester" }
     ];
 
     const iconMap = { Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" };
@@ -177,6 +190,10 @@
     const guides = [{ t: "Netherite Potion", img: "https://i.ibb.co/j0R7xgB/Ry-HWR7F.webp", d: "FT4 testing. LT3 score: 3-4." }, { t: "Sword PvP", img: "https://i.ibb.co/4nPj7q1J/w-Txkbpa.webp", d: "FT10 testing. Diamond Sword." }, { t: "Axe PvP", img: "https://i.ibb.co/z33C5wC/image-1.webp", d: "FT10 testing. Unenchanted." }, { t: "SMP Kit", img: "https://i.ibb.co/FbrQxvCd/L6b5d4m.webp", d: "FT3 testing. Netherite P4." }, { t: "Crystal PvP", img: "https://i.ibb.co/cctTKK0N/Gl2LJt-Y.webp", d: "14 Totems. No Gapples." }, { t: "Mace PvP", img: "https://i.ibb.co/ymvkqBHm/dwawadadwwadawd.webp", d: "FT3 testing. Breach IV." }, { t: "UHC", img: "https://i.ibb.co/sJzv07gk/AT0i-JN9.webp", d: "FT10. P3 Diamond." }, { t: "Potion PvP", img: "https://i.ibb.co/F4t8VRLF/3Y1c-Sjq.webp", d: "FT5/10. P4 Armor." }];
 
     let currentGM = 'all';
+
+    function calculatePoints(playerTiers) {
+        return Object.values(playerTiers).reduce((sum, tier) => sum + (scale[tier] || 0), 0);
+    }
 
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
@@ -195,19 +212,32 @@
     function renderPlayers() {
         const query = document.getElementById('pSearch').value.toLowerCase();
         const body = document.getElementById('pBody');
-        let filtered = players.filter(p => p.ign.toLowerCase().includes(query));
-        if (currentGM !== 'all') filtered = filtered.filter(p => p.tiers[currentGM]);
-        body.innerHTML = filtered.sort((a,b) => b.pts - a.pts).map((p, i) => `
+        
+        let filtered = players.map(p => ({
+            ...p,
+            totalPoints: calculatePoints(p.tiers)
+        })).filter(p => p.ign.toLowerCase().includes(query));
+
+        if (currentGM !== 'all') {
+            filtered = filtered.filter(p => p.tiers[currentGM]);
+        }
+
+        body.innerHTML = filtered.sort((a,b) => b.totalPoints - a.totalPoints).map((p, i) => {
+            let rankNum = i + 1;
+            let rankClass = rankNum === 1 ? 'gold-rank' : rankNum === 2 ? 'silver-rank' : rankNum === 3 ? 'bronze-rank' : '';
+            
+            return `
             <tr class="player-row">
-                <td style="padding-left:20px; font-weight:800; color:var(--text-dim)">${i+1}</td>
+                <td style="padding-left:20px;"><span class="rank-badge ${rankClass}">${rankNum}</span></td>
                 <td><div style="display:flex;align-items:center;gap:12px;"><img src="https://mc-heads.net/avatar/${p.ign}/40" style="border-radius:10px;"><b>${p.ign}</b></div></td>
-                <td><b style="color:var(--gold)">${p.pts}</b></td>
-                <td><span style="background:var(--discord);padding:4px 8px;border-radius:6px;font-size:10px;">${p.reg}</span></td>
+                <td><b style="color:var(--gold); font-size:16px;">${p.totalPoints}</b></td>
+                <td><span style="background:var(--discord);padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;">${p.reg}</span></td>
                 <td style="text-align:right; padding-right:20px;">
                     ${Object.entries(p.tiers).filter(([m]) => currentGM === 'all' || m === currentGM)
                     .map(([k,v]) => `<div class="tier-pill"><img src="${iconMap[k]}">${v}</div>`).join('')}
                 </td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
     }
 
     async function loadTesters() {
@@ -219,14 +249,19 @@
                 const data = await res.json();
                 const user = data.data;
                 const status = user.discord_status || 'offline';
+                const isOwner = staff.role === "Owner";
+
                 grid.innerHTML += `
-                    <div class="tester-card">
+                    <div class="tester-card ${isOwner ? 'owner-superior' : ''}">
                         <div class="status-badge"><div class="status-dot" style="background:var(--${status}); box-shadow:0 0 8px var(--${status})"></div> ${status}</div>
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <img src="https://cdn.discordapp.com/avatars/${staff.id}/${user.discord_user.avatar}.png" class="tester-avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/60'">
+                        <div style="display:flex; align-items:center; gap:20px;">
+                            <img src="https://cdn.discordapp.com/avatars/${staff.id}/${user.discord_user.avatar}.png" 
+                                 class="tester-avatar ${isOwner ? 'owner-avatar' : ''}" 
+                                 onerror="this.src='https://mc-heads.net/avatar/MHF_Question/60'">
                             <div>
                                 <div style="color:var(--gold); font-size:10px; font-weight:900; letter-spacing:1px; text-transform:uppercase;">${staff.role}</div>
-                                <div style="font-size:18px; font-weight:800;">${user.discord_user.username}</div>
+                                <div style="font-size:${isOwner ? '24px' : '18px'}; font-weight:800;">${user.discord_user.username}</div>
+                                ${isOwner ? '<div style="font-size:10px; color:var(--text-dim); margin-top:4px;">Network Founder</div>' : ''}
                             </div>
                         </div>
                     </div>`;
