@@ -1,8 +1,10 @@
-[{
+[
+  {
   "ign": "Error__",
   "region": "AS",
   "role": "FIGHTER",
   "tiers": {
     "axe": "HT5"
   }
-}]
+}
+]
