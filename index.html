@@ -56,6 +56,7 @@
         .gm-btn {
             background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 12px 20px; 
             border-radius: 12px; font-weight: 800; font-size: 11px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s;
+            white-space: nowrap;
         }
         .gm-btn.active { background: #1c1d23; border-color: var(--gold); color: #fff; }
         .gm-btn img { width: 20px; height: 20px; border-radius: 4px; }
@@ -75,7 +76,7 @@
         .tier-pill { display: inline-flex; align-items: center; gap: 8px; background: #000; padding: 8px 14px; border-radius: 10px; border: 1px solid #222; font-size: 12px; font-weight: 900; color: var(--gold); margin: 2px; }
         .tier-pill img { width: 18px; height: 18px; border-radius: 3px; }
 
-        /* --- TESTERS (SUPERIOR OWNER) --- */
+        /* --- TESTERS --- */
         .tester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .tester-card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 20px; position: relative; transition: 0.3s; }
         .owner-superior { 
@@ -116,7 +117,7 @@
             <div class="feature-grid">
                 <div class="feature-card"><h3>Live Tracking</h3><p>Real-time updates directly from our testing team.</p></div>
                 <div class="feature-card"><h3>Zero Bias</h3><p>Mechanical skill is the only metric that matters.</p></div>
-                <div class="feature-card"><h3>Multi-Meta</h3><p>Optimized rankings for all 8 competitive modes.</p></div>
+                <div class="feature-card"><h3>Multi-Meta</h3><p>Optimized rankings for all competitive modes.</p></div>
             </div>
         </div>
     </div>
@@ -131,6 +132,7 @@
             <div class="gm-btn" onclick="setGM('Crystal')"><img src="https://i.ibb.co/Qj6Rzzjn/crystal.jpg"> CRYSTAL</div>
             <div class="gm-btn" onclick="setGM('Mace')"><img src="https://i.ibb.co/DHYd2KcH/mace.jpg"> MACE</div>
             <div class="gm-btn" onclick="setGM('Sword')"><img src="https://i.ibb.co/4q5XZD1/sword.jpg"> SWORD</div>
+            <div class="gm-btn" onclick="setGM('Tank')"><img src="https://i.ibb.co/4q5XZD1/sword.jpg"> TANK</div>
             <div class="gm-btn" onclick="setGM('Nethpot')"><img src="https://i.ibb.co/QRjqZ1d/nethpot.jpg"> NETHPOT</div>
             <div class="gm-btn" onclick="setGM('Axe')"><img src="https://i.ibb.co/Vc73Q3sV/axe.jpg"> AXE</div>
             <div class="gm-btn" onclick="setGM('SMP')"><img src="https://i.ibb.co/zhMLjTFK/smp.jpg"> SMP</div>
@@ -164,17 +166,19 @@
         { ign: "ThunderSlayer_", reg: "AS", tiers: { Sword: "HT5" } },
         { ign: "Elden_Boss", reg: "AS", tiers: { Nethpot: "LT4", Crystal: "HT5" } },
         { ign: "Richiplayz69_", reg: "AS", tiers: { Nethpot: "LT4" } },
-        { ign: "HarshalGamer272", reg: "AS", tiers: { Mace: "HT5" } },
+        { ign: "Harshalgamer_272", reg: "AS", tiers: { Mace: "LT4" } }, 
         { ign: "Viaan58996", reg: "AS", tiers: { Crystal: "HT5", Mace: "LT4" } },
         { ign: "Sora24052", reg: "AS", tiers: { Mace: "LT5" } },
         { ign: "kinetic18z", reg: "AS", tiers: { Mace: "HT5" } },
         { ign: "AdarshOp7182", reg: "AS", tiers: { Mace: "LT5" } },
-        { ign: "tgbeast_2", reg: "AS", tiers: { SMP: "LT4" } },
+        { ign: "tgbeast_2", reg: "AS", tiers: { SMP: "LT4", Mace: "HT5" } },
         { ign: "Kratoz3377", reg: "AS", tiers: { Axe: "HT5" } },
         { ign: "TSprogamer777", reg: "AS", tiers: { Mace: "LT5" } },
         { ign: "Captain_levi", reg: "AS", tiers: { Axe: "HT4" } },
         { ign: "Error__", reg: "AS", tiers: { Axe: "HT5" } },
-        { ign: " SkilllSpawnn", reg: "AS", tiers: { Sword: "LT5", Crystal: "HT5" } }
+        { ign: "SkilllSpawnn", reg: "AS", tiers: { Sword: "LT5", Crystal: "HT5", Tank: "LT5" } }, 
+        { ign: "DEADLY_BLOX03", reg: "AS", tiers: { Mace: "HT4" } },
+        { ign: "Go_pao", reg: "AS", tiers: { Crystal: "LT4" } }
     ];
 
     const testerData = [
@@ -186,27 +190,53 @@
         { id: "905109035211194388", role: "Tester" }
     ];
 
-    const iconMap = { Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" };
+    const iconMap = { 
+        Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", 
+        Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", 
+        Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", 
+        Tank: "https://i.ibb.co/4q5XZD1/sword.jpg", 
+        Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", 
+        Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", 
+        SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", 
+        Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", 
+        UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" 
+    };
+
     const rulesData = ["1. Tier Testing Only Counts Here", "2. Be Honest", "3. No Cheating", "4. Participation Required", "5. Respect the Testers", "6. Clips Are for Review Only", "7. Timeliness Matters", "8. Testing Environment", "9. Skill Over Style", "10. Communication", "11. Privacy & Security", "12. Re-Tier Requests", "13. Fair Competition", "14. Feedback Welcome", "15. Consequences Are Real", "16. Your Skill = Your Tier"];
-    const guides = [{ t: "Netherite Potion", img: "https://i.ibb.co/j0R7xgB/Ry-HWR7F.webp", d: "FT4 testing. LT3 score: 3-4." }, { t: "Sword PvP", img: "https://i.ibb.co/4nPj7q1J/w-Txkbpa.webp", d: "FT10 testing. Diamond Sword." }, { t: "Axe PvP", img: "https://i.ibb.co/z33C5wC/image-1.webp", d: "FT10 testing. Unenchanted." }, { t: "SMP Kit", img: "https://i.ibb.co/FbrQxvCd/L6b5d4m.webp", d: "FT3 testing. Netherite P4." }, { t: "Crystal PvP", img: "https://i.ibb.co/cctTKK0N/Gl2LJt-Y.webp", d: "14 Totems. No Gapples." }, { t: "Mace PvP", img: "https://i.ibb.co/ymvkqBHm/dwawadadwwadawd.webp", d: "FT3 testing. Breach IV." }, { t: "UHC", img: "https://i.ibb.co/sJzv07gk/AT0i-JN9.webp", d: "FT10. P3 Diamond." }, { t: "Potion PvP", img: "https://i.ibb.co/F4t8VRLF/3Y1c-Sjq.webp", d: "FT5/10. P4 Armor." }];
+    
+    const guides = [
+        { t: "Netherite Potion", img: "https://i.ibb.co/j0R7xgB/Ry-HWR7F.webp", d: "FT4 testing. LT3 score: 3-4." }, 
+        { t: "Sword & Tank PvP", img: "https://i.ibb.co/4nPj7q1J/w-Txkbpa.webp", d: "FT10 testing. Diamond Sword." }, 
+        { t: "Axe PvP", img: "https://i.ibb.co/z33C5wC/image-1.webp", d: "FT10 testing. Unenchanted." }, 
+        { t: "SMP Kit", img: "https://i.ibb.co/FbrQxvCd/L6b5d4m.webp", d: "FT3 testing. Netherite P4." }, 
+        { t: "Crystal PvP", img: "https://i.ibb.co/cctTKK0N/Gl2LJt-Y.webp", d: "14 Totems. No Gapples." }, 
+        { t: "Mace PvP", img: "https://i.ibb.co/ymvkqBHm/dwawadadwwadawd.webp", d: "FT3 testing. Breach IV." }, 
+        { t: "UHC", img: "https://i.ibb.co/sJzv07gk/AT0i-JN9.webp", d: "FT10. P3 Diamond." }, 
+        { t: "Potion PvP", img: "https://i.ibb.co/F4t8VRLF/3Y1c-Sjq.webp", d: "FT5/10. P4 Armor." }
+    ];
 
     let currentGM = 'all';
 
     function calculatePoints(playerTiers) {
-        return Object.values(playerTiers).reduce((sum, tier) => sum + (scale[tier] || 0), 0);
+        return Object.values(playerTiers).reduce((sum, tier) => {
+            const cleanTier = tier.split('(')[0].trim().toUpperCase();
+            return sum + (scale[cleanTier] || 0);
+        }, 0);
     }
 
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
         document.getElementById(p).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(item => { if(item.innerText.toLowerCase() === p) item.classList.add('active'); });
+        const navItem = Array.from(document.querySelectorAll('.nav-item')).find(item => item.innerText.toLowerCase() === p);
+        if(navItem) navItem.classList.add('active');
     }
 
     function setGM(gm) {
         currentGM = gm;
         document.querySelectorAll('.gm-btn').forEach(b => b.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        const clickedBtn = Array.from(document.querySelectorAll('.gm-btn')).find(btn => btn.getAttribute('onclick').includes(`'${gm}'`));
+        if(clickedBtn) clickedBtn.classList.add('active');
         renderPlayers();
     }
 
