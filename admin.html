@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arise | Admin Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --bg: #050505; --panel: #0d0e12; --gold: #ffb400; --border: #1f2026; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 40px; }
+        .card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 15px; max-width: 600px; margin: 0 auto 20px; }
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border); background: #16171d; color: #fff; }
+        button { background: var(--gold); color: #000; font-weight: bold; cursor: pointer; border: none; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login-zone" class="card">
+        <h2>Admin Login</h2>
+        <input type="text" id="adminID" placeholder="ID (Arisecore)">
+        <input type="password" id="adminPass" placeholder="Password">
+        <button onclick="handleLogin()">Login</button>
+    </div>
+
+    <div id="admin-zone" class="hidden">
+        <div class="card">
+            <h2>Publish Player Data</h2>
+            <input type="text" id="p_ign" placeholder="Player IGN">
+            <select id="p_region"><option value="AS">Asia</option><option value="EU">Europe</option><option value="NA">North America</option></select>
+            <select id="p_kit"><option value="Crystal">Crystal</option><option value="Mace">Mace</option><option value="Sword">Sword</option><option value="Axe">Axe</option></select>
+            <select id="p_tier"><option value="HT1">HT1</option><option value="LT1">LT1</option><option value="HT2">HT2</option><option value="LT2">LT2</option><option value="HT3">HT3</option><option value="LT3">LT3</option></select>
+            <button onclick="publishData()">UPDATE PLAYER</button>
+            <button onclick="supabase.auth.signOut().then(()=>location.reload())" style="background:#333; color:#fff; margin-top:20px;">Logout</button>
+        </div>
+    </div>
+
+<script>
+    const supabaseUrl = 'YOUR_SUPABASE_URL';
+    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
+    const pointsMap = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4 };
+
+    async function handleLogin() {
+        const id = document.getElementById('adminID').value;
+        const pass = document.getElementById('adminPass').value;
+        const email = id.includes('@') ? id : id + "@admin.com";
+
+        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+        if (error) alert("Access Denied"); else checkUser();
+    }
+
+    async function checkUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            document.getElementById('login-zone').classList.add('hidden');
+            document.getElementById('admin-zone').classList.remove('hidden');
+        }
+    }
+
+    async function publishData() {
+        const ign = document.getElementById('p_ign').value;
+        const kit = document.getElementById('p_kit').value;
+        const tier = document.getElementById('p_tier').value;
+        const region = document.getElementById('p_region').value;
+
+        // Fetch existing tiers to merge
+        const { data: existing } = await supabase.from('players').select('tiers').eq('ign', ign).single();
+        const updatedTiers = existing ? { ...existing.tiers, [kit]: tier } : { [kit]: tier };
+
+        // Calculate points
+        const totalPoints = Object.values(updatedTiers).reduce((sum, t) => sum + (pointsMap[t] || 0), 0);
+
+        // Upload
+        const { error } = await supabase.from('players').upsert({
+            ign, region, tiers: updatedTiers, points: totalPoints
+        }, { onConflict: 'ign' });
+
+        if (error) alert(error.message); else alert("Successfully Published!");
+    }
+
+    checkUser();
+</script>
+</body>
+</html>
