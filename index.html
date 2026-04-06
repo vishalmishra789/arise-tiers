@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arise Network | Official</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -153,32 +154,10 @@
 </div>
 
 <script>
-    const scale = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1 };
-
-    // UPDATED: Tank data moved to Sword
-    const players = [
-        { ign: "Legend_008", reg: "AS", tiers: { Mace: "LT3", Sword: "HT4", Crystal: "HT5" } },
-        { ign: "Zenkai_slice", reg: "AS", tiers: { Mace: "HT4" } },
-        { ign: "okfiaiaa", reg: "AS", tiers: { Crystal: "LT4" } },
-        { ign: "ThunderSlayer_", reg: "AS", tiers: { Sword: "HT5" } },
-        { ign: "Elden_Boss", reg: "AS", tiers: { Nethpot: "LT4", Crystal: "HT5" } },
-        { ign: "Richiplayz69_", reg: "AS", tiers: { Nethpot: "LT4" } },
-        { ign: "Harshalgamer_272", reg: "AS", tiers: { Mace: "LT4" } }, 
-        { ign: "Viaan58996", reg: "AS", tiers: { Crystal: "HT5", Mace: "LT4" } },
-        { ign: "Sora24052", reg: "AS", tiers: { Mace: "LT5" } },
-        { ign: "kinetic18z", reg: "AS", tiers: { Mace: "HT5" } },
-        { ign: "AdarshOp7182", reg: "AS", tiers: { Mace: "LT5" } },
-        { ign: "tgbeast_2", reg: "AS", tiers: { SMP: "LT4", Mace: "HT5" } },
-        { ign: "Kratoz3377", reg: "AS", tiers: { Axe: "HT5" } },
-        { ign: "TSprogamer777", reg: "AS", tiers: { Mace: "LT5" } },
-        { ign: "Captain_levi", reg: "AS", tiers: { Axe: "HT4" } },
-        { ign: "Error__", reg: "AS", tiers: { Axe: "HT5" } },
-        { ign: "SkilllSpawnn", reg: "AS", tiers: { Sword: "LT5", Crystal: "HT5" } }, // Tank LT5 moved to Sword LT5
-        { ign: "DEADLY_BLOX03", reg: "AS", tiers: { Mace: "HT4" } },
-        { ign: "Go_pao", reg: "AS", tiers: { Crystal: "LT4" } },
-        { ign: "L0IXSmit", reg: "AS", tiers: { Sword: "LT3" , Mace: "HT4" } }, 
-        { ign: "NxT_Y4SH", reg: "AS", tiers: { Crystal: "LT5" } }
-    ];
+    // SUPABASE CONFIGURATION
+    const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
     const testerData = [
         { id: "1409520340136099904", role: "Owner" },
@@ -216,13 +195,6 @@
 
     let currentGM = 'all';
 
-    function calculatePoints(playerTiers) {
-        return Object.values(playerTiers).reduce((sum, tier) => {
-            const cleanTier = tier.split('(')[0].trim().toUpperCase();
-            return sum + (scale[cleanTier] || 0);
-        }, 0);
-    }
-
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
@@ -239,20 +211,29 @@
         renderPlayers();
     }
 
-    function renderPlayers() {
+    // UPDATED: Now fetches data live from Supabase
+    async function renderPlayers() {
         const query = document.getElementById('pSearch').value.toLowerCase();
         const body = document.getElementById('pBody');
         
-        let filtered = players.map(p => ({
-            ...p,
-            totalPoints: calculatePoints(p.tiers)
-        })).filter(p => p.ign.toLowerCase().includes(query));
+        // Fetch players from your 'players' table ordered by points
+        let { data: players, error } = await supabaseClient
+            .from('players')
+            .select('*')
+            .order('points', { ascending: false });
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return;
+        }
+
+        let filtered = players.filter(p => p.ign.toLowerCase().includes(query));
 
         if (currentGM !== 'all') {
             filtered = filtered.filter(p => p.tiers[currentGM]);
         }
 
-        body.innerHTML = filtered.sort((a,b) => b.totalPoints - a.totalPoints).map((p, i) => {
+        body.innerHTML = filtered.map((p, i) => {
             let rankNum = i + 1;
             let rankClass = rankNum === 1 ? 'gold-rank' : rankNum === 2 ? 'silver-rank' : rankNum === 3 ? 'bronze-rank' : '';
             
@@ -260,8 +241,8 @@
             <tr class="player-row">
                 <td style="padding-left:20px;"><span class="rank-badge ${rankClass}">${rankNum}</span></td>
                 <td><div style="display:flex;align-items:center;gap:12px;"><img src="https://mc-heads.net/avatar/${p.ign}/40" style="border-radius:10px;"><b>${p.ign}</b></div></td>
-                <td><b style="color:var(--gold); font-size:16px;">${p.totalPoints}</b></td>
-                <td><span style="background:var(--discord);padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;">${p.reg}</span></td>
+                <td><b style="color:var(--gold); font-size:16px;">${p.points}</b></td>
+                <td><span style="background:var(--discord);padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;">${p.region}</span></td>
                 <td style="text-align:right; padding-right:20px;">
                     ${Object.entries(p.tiers).filter(([m]) => currentGM === 'all' || m === currentGM)
                     .map(([k,v]) => `<div class="tier-pill"><img src="${iconMap[k]}">${v}</div>`).join('')}
@@ -272,7 +253,6 @@
 
     async function loadTesters() {
         const grid = document.getElementById('tester-list');
-        const TARGET_SERVER = "1440293224303562824";
         grid.innerHTML = "";
 
         for (const staff of testerData) {
@@ -286,10 +266,7 @@
                 const status = user.discord_status || 'offline';
                 const isOwner = staff.role === "Owner";
 
-                // Robust Nickname Check for specific server
                 let displayName = user.discord_user.global_name || user.discord_user.username;
-                
-                // If Lanyard is tracking the guild, check for nickname
                 if (user.member && user.member.nick) {
                     displayName = user.member.nick;
                 }
@@ -313,7 +290,8 @@
     }
 
     window.onload = () => {
-        renderPlayers(); loadTesters();
+        renderPlayers(); 
+        loadTesters();
         document.getElementById('rules-list').innerHTML = rulesData.map(r => `<div class="card" style="padding:15px; margin:0;"><div style="border-left:3px solid var(--gold);padding-left:10px;"><b>${r}</b></div></div>`).join('');
         document.getElementById('guide-list').innerHTML = guides.map(g => `<div class="card"><h2>${g.t}</h2><p style="color:var(--text-dim); font-size:14px;">${g.d}</p><img src="${g.img}" class="kit-img"></div>`).join('');
     };
