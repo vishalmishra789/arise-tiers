@@ -5,81 +5,143 @@
     <title>Arise | Admin Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg: #050505; --panel: #0d0e12; --gold: #ffb400; --border: #1f2026; }
+        :root { --bg: #050505; --panel: #0d0e12; --gold: #ffb400; --border: #1f2026; --text-dim: #929292; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 40px; }
-        .card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 15px; max-width: 600px; margin: 0 auto 20px; }
-        input, select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border); background: #16171d; color: #fff; }
-        button { background: var(--gold); color: #000; font-weight: bold; cursor: pointer; border: none; }
+        .card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 15px; max-width: 500px; margin: 0 auto 20px; }
+        h2 { margin-top: 0; color: var(--gold); letter-spacing: 1px; }
+        label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 5px; margin-top: 10px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border); background: #16171d; color: #fff; font-size: 14px; }
+        button { background: var(--gold); color: #000; font-weight: 800; cursor: pointer; border: none; margin-top: 10px; transition: 0.2s; }
+        button:hover { opacity: 0.8; }
         .hidden { display: none; }
+        .logout-btn { background: #222; color: #ff4747; margin-top: 20px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
     <div id="login-zone" class="card">
         <h2>Admin Login</h2>
-        <input type="text" id="adminID" placeholder="ID (Arisecore)">
-        <input type="password" id="adminPass" placeholder="Password">
-        <button onclick="handleLogin()">Login</button>
+        <label>Username</label>
+        <input type="text" id="adminID" placeholder="Enter Username">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="Enter Password">
+        <button onclick="handleLogin()">ACCESS PANEL</button>
     </div>
 
     <div id="admin-zone" class="hidden">
         <div class="card">
             <h2>Publish Player Data</h2>
-            <input type="text" id="p_ign" placeholder="Player IGN">
-            <select id="p_region"><option value="AS">Asia</option><option value="EU">Europe</option><option value="NA">North America</option></select>
-            <select id="p_kit"><option value="Crystal">Crystal</option><option value="Mace">Mace</option><option value="Sword">Sword</option><option value="Axe">Axe</option></select>
-            <select id="p_tier"><option value="HT1">HT1</option><option value="LT1">LT1</option><option value="HT2">HT2</option><option value="LT2">LT2</option><option value="HT3">HT3</option><option value="LT3">LT3</option></select>
+            
+            <label>Player IGN</label>
+            <input type="text" id="p_ign" placeholder="e.g. Legend_008">
+            
+            <label>Region</label>
+            <select id="p_region">
+                <option value="AS">Asia (AS)</option>
+                <option value="EU">Europe (EU)</option>
+                <option value="NA">North America (NA)</option>
+            </select>
+            
+            <label>Game Mode</label>
+            <select id="p_kit">
+                <option value="Crystal">Crystal</option>
+                <option value="Mace">Mace</option>
+                <option value="Sword">Sword</option>
+                <option value="Axe">Axe</option>
+                <option value="Nethpot">Nethpot</option>
+                <option value="SMP">SMP</option>
+                <option value="Potion">Potion</option>
+                <option value="UHC">UHC</option>
+            </select>
+            
+            <label>Tier Rank</label>
+            <select id="p_tier">
+                <option value="HT1">HT1 (40 pts)</option>
+                <option value="LT1">LT1 (32 pts)</option>
+                <option value="HT2">HT2 (24 pts)</option>
+                <option value="LT2">LT2 (20 pts)</option>
+                <option value="HT3">HT3 (16 pts)</option>
+                <option value="LT3">LT3 (12 pts)</option>
+                <option value="HT4">HT4 (8 pts)</option>
+                <option value="LT4">LT4 (4 pts)</option>
+                <option value="HT5">HT5 (2 pts)</option>
+                <option value="LT5">LT5 (1 pts)</option>
+            </select>
+            
             <button onclick="publishData()">UPDATE PLAYER</button>
-            <button onclick="supabase.auth.signOut().then(()=>location.reload())" style="background:#333; color:#fff; margin-top:20px;">Logout</button>
+            <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
         </div>
     </div>
 
 <script>
-    const supabaseUrl = 'YOUR_SUPABASE_URL';
-    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-    const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+    const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
+    const supabase = supabasejs.createClient(SB_URL, SB_KEY);
 
-    const pointsMap = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4 };
+    const pointsMap = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1 };
 
-    async function handleLogin() {
-        const id = document.getElementById('adminID').value;
+    // --- LOGIN LOGIC ---
+    function handleLogin() {
+        const user = document.getElementById('adminID').value;
         const pass = document.getElementById('adminPass').value;
-        const email = id.includes('@') ? id : id + "@admin.com";
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-        if (error) alert("Access Denied"); else checkUser();
-    }
-
-    async function checkUser() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            document.getElementById('login-zone').classList.add('hidden');
-            document.getElementById('admin-zone').classList.remove('hidden');
+        // Custom Login Lock
+        if (user === "Legend_008" && pass === "VISHAL@2008") {
+            localStorage.setItem("arise_admin_auth", "true");
+            showPanel();
+        } else {
+            alert("Invalid Credentials. Access Denied.");
         }
     }
 
+    function showPanel() {
+        document.getElementById('login-zone').classList.add('hidden');
+        document.getElementById('admin-zone').classList.remove('hidden');
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("arise_admin_auth");
+        location.reload();
+    }
+
+    // --- DATA LOGIC ---
     async function publishData() {
-        const ign = document.getElementById('p_ign').value;
+        const ign = document.getElementById('p_ign').value.trim();
         const kit = document.getElementById('p_kit').value;
         const tier = document.getElementById('p_tier').value;
         const region = document.getElementById('p_region').value;
 
-        // Fetch existing tiers to merge
+        if(!ign) return alert("Please enter a Player IGN");
+
+        // 1. Get existing data for this player
         const { data: existing } = await supabase.from('players').select('tiers').eq('ign', ign).single();
+        
+        // 2. Merge new tier into existing tiers object
         const updatedTiers = existing ? { ...existing.tiers, [kit]: tier } : { [kit]: tier };
 
-        // Calculate points
+        // 3. Calculate new total points
         const totalPoints = Object.values(updatedTiers).reduce((sum, t) => sum + (pointsMap[t] || 0), 0);
 
-        // Upload
+        // 4. Update Supabase
         const { error } = await supabase.from('players').upsert({
-            ign, region, tiers: updatedTiers, points: totalPoints
+            ign: ign, 
+            region: region, 
+            tiers: updatedTiers, 
+            points: totalPoints
         }, { onConflict: 'ign' });
 
-        if (error) alert(error.message); else alert("Successfully Published!");
+        if (error) {
+            alert("Error: " + error.message);
+        } else {
+            alert(`Successfully updated ${ign}!`);
+            document.getElementById('p_ign').value = ""; // Clear input
+        }
     }
 
-    checkUser();
+    // Check if user is already logged in on page load
+    if (localStorage.getItem("arise_admin_auth") === "true") {
+        showPanel();
+    }
 </script>
 </body>
 </html>
