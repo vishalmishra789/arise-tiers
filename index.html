@@ -9,13 +9,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
         :root {
-            --bg: #050505;
-            --panel: #0d0e12;
-            --border: #1f2026;
-            --gold: #ffb400;
-            --gold-glow: rgba(255, 180, 0, 0.2);
-            --text-dim: #929292;
-            --discord: #5865F2;
+            --bg: #050505; --panel: #0d0e12; --border: #1f2026; --gold: #ffb400;
+            --gold-glow: rgba(255, 180, 0, 0.2); --text-dim: #929292; --discord: #5865F2;
             --online: #43b581; --idle: #faa61a; --dnd: #f04747; --offline: #747f8d;
         }
 
@@ -44,13 +39,11 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- HOME --- */
-        .home-hero { text-align: center; padding: 40px 0 80px; }
+        /* --- HOME & NEWS --- */
+        .home-hero { text-align: center; padding: 40px 0 40px; }
         .home-hero h1 { font-size: 85px; font-weight: 900; margin: 0; letter-spacing: -4px; line-height: 0.9; }
-        .home-hero p { color: var(--text-dim); font-size: 22px; margin-top: 25px; max-width: 700px; margin-left: auto; margin-right: auto; }
-        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 60px; }
-        .feature-card { background: var(--panel); border: 1px solid var(--border); padding: 40px; border-radius: 25px; text-align: left; }
-        .feature-card h3 { color: var(--gold); margin-bottom: 10px; }
+        .news-section { margin-top: 50px; text-align: left; }
+        .news-card { background: #111218; border-left: 4px solid var(--gold); padding: 20px; border-radius: 10px; margin-bottom: 15px; }
 
         /* --- RANKINGS --- */
         .gm-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin: 30px 0; scrollbar-width: none; }
@@ -79,17 +72,10 @@
         /* --- TESTERS --- */
         .tester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .tester-card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 20px; position: relative; transition: 0.3s; }
-        .owner-superior { 
-            grid-column: 1 / -1; 
-            background: linear-gradient(145deg, #0d0e12, #1a1b23); 
-            border: 2px solid var(--gold);
-            box-shadow: 0 0 30px rgba(255, 180, 0, 0.1);
-        }
-        .tester-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .owner-superior { grid-column: 1 / -1; background: linear-gradient(145deg, #0d0e12, #1a1b23); border: 2px solid var(--gold); }
         .status-badge { position: absolute; top: 20px; right: 20px; font-size: 9px; font-weight: 900; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
         .status-dot { width: 10px; height: 10px; border-radius: 50%; }
         .tester-avatar { width: 60px; height: 60px; border-radius: 15px; border: 2px solid #1f2026; }
-        .owner-avatar { width: 80px; height: 80px; border: 2px solid var(--gold); }
 
         .card { background: var(--panel); border: 1px solid var(--border); padding: 30px; border-radius: 20px; margin-bottom: 20px; }
         .kit-img { width: 100%; border-radius: 15px; margin-top: 20px; border: 1px solid var(--border); }
@@ -112,12 +98,11 @@
     <div id="home" class="page active">
         <div class="home-hero">
             <h1>ARISE <span style="color:var(--gold)">NETWORK</span></h1>
-            <p>The elite standard for Minecraft combat analytics in the Asia region.</p>
-            <div class="feature-grid">
-                <div class="feature-card"><h3>Live Tracking</h3><p>Real-time updates directly from our testing team.</p></div>
-                <div class="feature-card"><h3>Zero Bias</h3><p>Mechanical skill is the only metric that matters.</p></div>
-                <div class="feature-card"><h3>Multi-Meta</h3><p>Optimized rankings for all competitive modes.</p></div>
-            </div>
+            <p>The elite standard for Minecraft combat analytics in Asia.</p>
+        </div>
+        <div class="news-section">
+            <h2 style="color:var(--gold); font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Latest Announcements</h2>
+            <div id="news-feed">Loading updates...</div>
         </div>
     </div>
 
@@ -145,7 +130,7 @@
 
     <div id="testers" class="page">
         <h1 style="margin-bottom:40px;">STAFF <span style="color:var(--gold)">ROSTER</span></h1>
-        <div class="tester-grid" id="tester-list"></div>
+        <div class="tester-grid" id="tester-list">Fetching staff data...</div>
     </div>
 
     <div id="guide" class="page"><div class="tester-grid" id="guide-list"></div></div>
@@ -154,44 +139,13 @@
 </div>
 
 <script>
-    // SUPABASE CONFIGURATION
     const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-    const testerData = [
-        { id: "1409520340136099904", role: "Owner" },
-        { id: "1281512664211783681", role: "Tester" },
-        { id: "1418664513330217002", role: "Tester" },
-        { id: "953672158687670352", role: "Tester" },
-        { id: "782492818479906828", role: "Tester" },
-        { id: "1377586496672108614", role: "Tester" },
-        { id: "905109035211194388", role: "Tester" }
-    ];
-
-    const iconMap = { 
-        Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", 
-        Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", 
-        Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", 
-        Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", 
-        Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", 
-        SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", 
-        Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", 
-        UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" 
-    };
-
+    const iconMap = { Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" };
     const rulesData = ["1. Tier Testing Only Counts Here", "2. Be Honest", "3. No Cheating", "4. Participation Required", "5. Respect the Testers", "6. Clips Are for Review Only", "7. Timeliness Matters", "8. Testing Environment", "9. Skill Over Style", "10. Communication", "11. Privacy & Security", "12. Re-Tier Requests", "13. Fair Competition", "14. Feedback Welcome", "15. Consequences Are Real", "16. Your Skill = Your Tier"];
-    
-    const guides = [
-        { t: "Netherite Potion", img: "https://i.ibb.co/j0R7xgB/Ry-HWR7F.webp", d: "FT4 testing. LT3 score: 3-4." }, 
-        { t: "Sword PvP", img: "https://i.ibb.co/4nPj7q1J/w-Txkbpa.webp", d: "FT10 testing. Diamond Sword." }, 
-        { t: "Axe PvP", img: "https://i.ibb.co/z33C5wC/image-1.webp", d: "FT10 testing. Unenchanted." }, 
-        { t: "SMP Kit", img: "https://i.ibb.co/FbrQxvCd/L6b5d4m.webp", d: "FT3 testing. Netherite P4." }, 
-        { t: "Crystal PvP", img: "https://i.ibb.co/cctTKK0N/Gl2LJt-Y.webp", d: "14 Totems. No Gapples." }, 
-        { t: "Mace PvP", img: "https://i.ibb.co/ymvkqBHm/dwawadadwwadawd.webp", d: "FT3 testing. Breach IV." }, 
-        { t: "UHC", img: "https://i.ibb.co/sJzv07gk/AT0i-JN9.webp", d: "FT10. P3 Diamond." }, 
-        { t: "Potion PvP", img: "https://i.ibb.co/F4t8VRLF/3Y1c-Sjq.webp", d: "FT5/10. P4 Armor." }
-    ];
+    const guides = [{ t: "Netherite Potion", img: "https://i.ibb.co/j0R7xgB/Ry-HWR7F.webp", d: "FT4 testing. LT3 score: 3-4." }, { t: "Sword PvP", img: "https://i.ibb.co/4nPj7q1J/w-Txkbpa.webp", d: "FT10 testing. Diamond Sword." }, { t: "Axe PvP", img: "https://i.ibb.co/z33C5wC/image-1.webp", d: "FT10 testing. Unenchanted." }, { t: "SMP Kit", img: "https://i.ibb.co/FbrQxvCd/L6b5d4m.webp", d: "FT3 testing. Netherite P4." }, { t: "Crystal PvP", img: "https://i.ibb.co/cctTKK0N/Gl2LJt-Y.webp", d: "14 Totems. No Gapples." }, { t: "Mace PvP", img: "https://i.ibb.co/ymvkqBHm/dwawadadwwadawd.webp", d: "FT3 testing. Breach IV." }, { t: "UHC", img: "https://i.ibb.co/sJzv07gk/AT0i-JN9.webp", d: "FT10. P3 Diamond." }, { t: "Potion PvP", img: "https://i.ibb.co/F4t8VRLF/3Y1c-Sjq.webp", d: "FT5/10. P4 Armor." }];
 
     let currentGM = 'all';
 
@@ -201,6 +155,9 @@
         document.getElementById(p).classList.add('active');
         const navItem = Array.from(document.querySelectorAll('.nav-item')).find(item => item.innerText.toLowerCase() === p);
         if(navItem) navItem.classList.add('active');
+        if(p === 'home') loadNews();
+        if(p === 'rankings') renderPlayers();
+        if(p === 'testers') loadTesters();
     }
 
     function setGM(gm) {
@@ -211,40 +168,37 @@
         renderPlayers();
     }
 
-    // UPDATED: Now fetches data live from Supabase
+    async function loadNews() {
+        const { data } = await supabaseClient.from('announcements').select('*').order('created_at', { ascending: false }).limit(3);
+        const feed = document.getElementById('news-feed');
+        if(!data || data.length === 0) { feed.innerHTML = "No recent announcements."; return; }
+        feed.innerHTML = data.map(n => `
+            <div class="news-card">
+                <h3 style="margin:0 0 5px; font-size:18px;">${n.title}</h3>
+                <p style="margin:0; color:var(--text-dim); font-size:14px;">${n.body}</p>
+            </div>
+        `).join('');
+    }
+
     async function renderPlayers() {
         const query = document.getElementById('pSearch').value.toLowerCase();
         const body = document.getElementById('pBody');
-        
-        // Fetch players from your 'players' table ordered by points
-        let { data: players, error } = await supabaseClient
-            .from('players')
-            .select('*')
-            .order('points', { ascending: false });
-
-        if (error) {
-            console.error("Supabase error:", error);
-            return;
-        }
+        let { data: players } = await supabaseClient.from('players').select('*').order('points', { ascending: false });
+        if (!players) return;
 
         let filtered = players.filter(p => p.ign.toLowerCase().includes(query));
-
-        if (currentGM !== 'all') {
-            filtered = filtered.filter(p => p.tiers[currentGM]);
-        }
+        if (currentGM !== 'all') filtered = filtered.filter(p => (p.tiers || {})[currentGM]);
 
         body.innerHTML = filtered.map((p, i) => {
-            let rankNum = i + 1;
-            let rankClass = rankNum === 1 ? 'gold-rank' : rankNum === 2 ? 'silver-rank' : rankNum === 3 ? 'bronze-rank' : '';
-            
+            let rankClass = i === 0 ? 'gold-rank' : i === 1 ? 'silver-rank' : i === 2 ? 'bronze-rank' : '';
             return `
             <tr class="player-row">
-                <td style="padding-left:20px;"><span class="rank-badge ${rankClass}">${rankNum}</span></td>
+                <td style="padding-left:20px;"><span class="rank-badge ${rankClass}">${i + 1}</span></td>
                 <td><div style="display:flex;align-items:center;gap:12px;"><img src="https://mc-heads.net/avatar/${p.ign}/40" style="border-radius:10px;"><b>${p.ign}</b></div></td>
                 <td><b style="color:var(--gold); font-size:16px;">${p.points}</b></td>
                 <td><span style="background:var(--discord);padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;">${p.region}</span></td>
                 <td style="text-align:right; padding-right:20px;">
-                    ${Object.entries(p.tiers).filter(([m]) => currentGM === 'all' || m === currentGM)
+                    ${Object.entries(p.tiers || {}).filter(([m]) => currentGM === 'all' || m === currentGM)
                     .map(([k,v]) => `<div class="tier-pill"><img src="${iconMap[k]}">${v}</div>`).join('')}
                 </td>
             </tr>`;
@@ -253,45 +207,34 @@
 
     async function loadTesters() {
         const grid = document.getElementById('tester-list');
+        const { data: staffList } = await supabaseClient.from('staff').select('*');
+        if(!staffList) return;
         grid.innerHTML = "";
 
-        for (const staff of testerData) {
+        for (const staff of staffList) {
             try {
-                const res = await fetch(`https://api.lanyard.rest/v1/users/${staff.id}`);
+                const res = await fetch(`https://api.lanyard.rest/v1/users/${staff.discord_id}`);
                 const data = await res.json();
-                
                 if (!data.success) continue;
-
                 const user = data.data;
                 const status = user.discord_status || 'offline';
-                const isOwner = staff.role === "Owner";
-
-                let displayName = user.discord_user.global_name || user.discord_user.username;
-                if (user.member && user.member.nick) {
-                    displayName = user.member.nick;
-                }
-
                 grid.innerHTML += `
-                    <div class="tester-card ${isOwner ? 'owner-superior' : ''}">
+                    <div class="tester-card ${staff.role === 'Owner' ? 'owner-superior' : ''}">
                         <div class="status-badge"><div class="status-dot" style="background:var(--${status}); box-shadow:0 0 8px var(--${status})"></div> ${status}</div>
                         <div style="display:flex; align-items:center; gap:20px;">
-                            <img src="https://cdn.discordapp.com/avatars/${staff.id}/${user.discord_user.avatar}.png" 
-                                 class="tester-avatar ${isOwner ? 'owner-avatar' : ''}" 
-                                 onerror="this.src='https://mc-heads.net/avatar/MHF_Question/60'">
+                            <img src="https://cdn.discordapp.com/avatars/${staff.discord_id}/${user.discord_user.avatar}.png" class="tester-avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/60'">
                             <div>
-                                <div style="color:var(--gold); font-size:10px; font-weight:900; letter-spacing:1px; text-transform:uppercase;">${staff.role}</div>
-                                <div style="font-size:${isOwner ? '24px' : '18px'}; font-weight:800;">${displayName}</div>
-                                ${isOwner ? '<div style="font-size:10px; color:var(--text-dim); margin-top:4px;">Network Founder</div>' : ''}
+                                <div style="color:var(--gold); font-size:10px; font-weight:900; text-transform:uppercase;">${staff.role}</div>
+                                <div style="font-size:18px; font-weight:800;">${user.discord_user.global_name || user.discord_user.username}</div>
                             </div>
                         </div>
                     </div>`;
-            } catch (e) { console.error("Discord Load Error", e); }
+            } catch (e) {}
         }
     }
 
     window.onload = () => {
-        renderPlayers(); 
-        loadTesters();
+        loadNews();
         document.getElementById('rules-list').innerHTML = rulesData.map(r => `<div class="card" style="padding:15px; margin:0;"><div style="border-left:3px solid var(--gold);padding-left:10px;"><b>${r}</b></div></div>`).join('');
         document.getElementById('guide-list').innerHTML = guides.map(g => `<div class="card"><h2>${g.t}</h2><p style="color:var(--text-dim); font-size:14px;">${g.d}</p><img src="${g.img}" class="kit-img"></div>`).join('');
     };
