@@ -2,137 +2,181 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Arise | Admin Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arise | Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg: #050505; --panel: #0d0e12; --gold: #ffb400; --border: #1f2026; --text-dim: #929292; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; padding: 40px; }
-        .card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 15px; max-width: 500px; margin: 0 auto 20px; }
-        h2 { margin-top: 0; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
-        label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 5px; margin-top: 15px; font-weight: 800; text-transform: uppercase; }
-        input, select, button { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #16171d; color: #fff; font-size: 14px; }
-        button { background: var(--gold); color: #000; font-weight: 900; cursor: pointer; border: none; margin-top: 20px; transition: 0.2s; }
-        button:hover { opacity: 0.8; transform: translateY(-1px); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        :root { --bg: #050505; --panel: #0d0e12; --gold: #ffb400; --border: #1f2026; --text-dim: #929292; --red: #ff4747; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        .card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 15px; margin-bottom: 20px; }
+        h2 { margin: 0 0 20px; color: var(--gold); font-size: 18px; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        label { display: block; font-size: 11px; color: var(--text-dim); margin: 10px 0 5px; font-weight: 800; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #16171d; color: #fff; font-family: inherit; }
+        
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; transition: 0.2s; margin-top: 10px; text-transform: uppercase; }
+        .btn-gold { background: var(--gold); color: #000; }
+        .btn-red { background: transparent; border: 1px solid var(--red); color: var(--red); }
+        .btn-red:hover { background: var(--red); color: #fff; }
+        
         .hidden { display: none; }
-        .logout-btn { background: transparent; color: #ff4747; border: 1px solid #333; margin-top: 10px; }
+        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav-btn { background: var(--panel); color: var(--text-dim); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .nav-btn.active { border-color: var(--gold); color: #fff; }
+        
+        #search-results { margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="login-zone" class="card">
-        <h2>Admin Access</h2>
-        <label>Username</label>
-        <input type="text" id="adminID" placeholder="Username">
-        <label>Password</label>
+<div class="container">
+    <div id="login-zone" class="card" style="max-width: 400px; margin: 100px auto;">
+        <h2>🔐 Admin Login</h2>
+        <input type="text" id="adminID" placeholder="Username" style="margin-bottom:10px;">
         <input type="password" id="adminPass" placeholder="Password">
-        <button onclick="handleLogin()">ENTER PANEL</button>
+        <button class="btn-gold" onclick="handleLogin()">Access Center</button>
     </div>
 
     <div id="admin-zone" class="hidden">
-        <div class="card">
-            <h2>Player Update</h2>
-            
-            <label>In-Game Name</label>
-            <input type="text" id="p_ign" placeholder="Minecraft IGN">
-            
-            <label>Region</label>
-            <select id="p_region">
-                <option value="AS">Asia (AS)</option>
-                <option value="EU">Europe (EU)</option>
-                <option value="NA">North America (NA)</option>
-            </select>
-            
-            <label>Category</label>
-            <select id="p_kit">
-                <option value="Crystal">Crystal</option>
-                <option value="Mace">Mace</option>
-                <option value="Sword">Sword</option>
-                <option value="Axe">Axe</option>
-                <option value="Nethpot">Nethpot</option>
-                <option value="SMP">SMP</option>
-                <option value="Potion">Potion</option>
-                <option value="UHC">UHC</option>
-            </select>
-            
-            <label>Assigned Tier</label>
-            <select id="p_tier">
-                <option value="HT1">HT1 (40 pts)</option>
-                <option value="LT1">LT1 (32 pts)</option>
-                <option value="HT2">HT2 (24 pts)</option>
-                <option value="LT2">LT2 (20 pts)</option>
-                <option value="HT3">HT3 (16 pts)</option>
-                <option value="LT3">LT3 (12 pts)</option>
-                <option value="HT4">HT4 (8 pts)</option>
-                <option value="LT4">LT4 (4 pts)</option>
-                <option value="HT5">HT5 (2 pts)</option>
-                <option value="LT5">LT5 (1 pts)</option>
-            </select>
-            
-            <button onclick="publishData()">PUBLISH CHANGES</button>
-            <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="font-size: 24px; font-weight: 900;">ARISE <span style="color:var(--gold)">COMMAND</span></h1>
+            <button class="btn-red" onclick="handleLogout()" style="width: auto; padding: 8px 15px; margin: 0;">Logout</button>
+        </div>
+
+        <div class="nav">
+            <div class="nav-btn active" onclick="switchTab('tab-players', this)">Players</div>
+            <div class="nav-btn" onclick="switchTab('tab-news', this)">Announcements</div>
+            <div class="nav-btn" onclick="switchTab('tab-staff', this)">Staff Manager</div>
+        </div>
+
+        <div id="tab-players" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <h2>📝 Add / Update Player</h2>
+                    <label>IGN</label><input type="text" id="p_ign" placeholder="Legend_008">
+                    <label>Region</label>
+                    <select id="p_region"><option value="AS">Asia</option><option value="EU">Europe</option><option value="NA">North America</option></select>
+                    <label>Kit & Tier</label>
+                    <div style="display:flex; gap:10px;">
+                        <select id="p_kit"><option value="Crystal">Crystal</option><option value="Mace">Mace</option><option value="Sword">Sword</option><option value="Axe">Axe</option><option value="Nethpot">Nethpot</option><option value="SMP">SMP</option></select>
+                        <select id="p_tier"><option value="HT1">HT1</option><option value="LT1">LT1</option><option value="HT2">HT2</option><option value="LT2">LT2</option><option value="HT3">HT3</option><option value="LT3">LT3</option><option value="HT4">HT4</option><option value="LT4">LT4</option><option value="HT5">HT5</option><option value="LT5">LT5</option></select>
+                    </div>
+                    <button class="btn-gold" onclick="publishPlayer()">Update Database</button>
+                </div>
+
+                <div class="card">
+                    <h2>🔍 Manage Player</h2>
+                    <input type="text" id="search_ign" placeholder="Enter IGN to search..." onkeyup="searchPlayer()">
+                    <div id="search-results">
+                        <p style="color:var(--text-dim); font-size: 13px;">Search for a player to delete their data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-news" class="tab-content hidden">
+            <div class="card">
+                <h2>📢 Global Announcement</h2>
+                <label>Headline</label>
+                <input type="text" id="news_title" placeholder="e.g. Season 2 Begins!">
+                <label>Content</label>
+                <textarea id="news_body" rows="4" placeholder="Write your update here..."></textarea>
+                <button class="btn-gold" onclick="postNews()">Post to Main Site</button>
+            </div>
+        </div>
+
+        <div id="tab-staff" class="tab-content hidden">
+            <div class="card">
+                <h2>🛡️ Staff Roster</h2>
+                <label>Discord User ID</label>
+                <input type="text" id="staff_id" placeholder="1409520340136099904">
+                <label>Role</label>
+                <select id="staff_role"><option value="Owner">Owner</option><option value="Head Tester">Head Tester</option><option value="Tester">Tester</option></select>
+                <button class="btn-gold" onclick="updateStaff()">Add to Roster</button>
+            </div>
         </div>
     </div>
+</div>
 
 <script>
     const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
-    
-    // RENAMED to adminClient to fix the SyntaxError
-    const adminClient = supabase.createClient(SB_URL, SB_KEY);
+    const client = supabase.createClient(SB_URL, SB_KEY);
 
     const pointsMap = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1 };
 
+    // --- AUTH ---
     function handleLogin() {
-        const user = document.getElementById('adminID').value;
-        const pass = document.getElementById('adminPass').value;
-        if (user === "Legend_008" && pass === "VISHAL@2008") {
-            localStorage.setItem("arise_admin_auth", "true");
-            showPanel();
-        } else {
-            alert("Login Failed.");
-        }
+        if(document.getElementById('adminID').value === "Legend_008" && document.getElementById('adminPass').value === "VISHAL@2008") {
+            localStorage.setItem("arise_auth", "true");
+            location.reload();
+        } else { alert("Wrong password."); }
     }
-
-    function showPanel() {
+    function handleLogout() { localStorage.removeItem("arise_auth"); location.reload(); }
+    if(localStorage.getItem("arise_auth") === "true") { 
         document.getElementById('login-zone').classList.add('hidden');
         document.getElementById('admin-zone').classList.remove('hidden');
     }
 
-    function handleLogout() {
-        localStorage.removeItem("arise_admin_auth");
-        location.reload();
+    // --- TABS ---
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        btn.classList.add('active');
     }
 
-    async function publishData() {
+    // --- PLAYER ACTIONS ---
+    async function publishPlayer() {
         const ign = document.getElementById('p_ign').value.trim();
         const kit = document.getElementById('p_kit').value;
         const tier = document.getElementById('p_tier').value;
-        const region = document.getElementById('p_region').value;
-
         if(!ign) return alert("Enter IGN");
 
-        // Use adminClient here
-        const { data: existing } = await adminClient.from('players').select('tiers').eq('ign', ign).maybeSingle();
-        
+        const { data: existing } = await client.from('players').select('tiers').eq('ign', ign).maybeSingle();
         const updatedTiers = existing ? { ...existing.tiers, [kit]: tier } : { [kit]: tier };
         const totalPoints = Object.values(updatedTiers).reduce((sum, t) => sum + (pointsMap[t] || 0), 0);
 
-        const { error } = await adminClient.from('players').upsert({
-            ign: ign, 
-            region: region, 
-            tiers: updatedTiers, 
-            points: totalPoints
-        }, { onConflict: 'ign' });
-
-        if (error) {
-            alert("Error: " + error.message);
-        } else {
-            alert(`Updated ${ign} successfully!`);
-            document.getElementById('p_ign').value = ""; 
-        }
+        await client.from('players').upsert({ ign, region: document.getElementById('p_region').value, tiers: updatedTiers, points: totalPoints }, { onConflict: 'ign' });
+        alert("Player Updated!");
     }
 
-    if (localStorage.getItem("arise_admin_auth") === "true") showPanel();
+    async function searchPlayer() {
+        const val = document.getElementById('search_ign').value;
+        if(val.length < 2) return;
+        const { data } = await client.from('players').select('*').ilike('ign', `%${val}%`);
+        document.getElementById('search-results').innerHTML = data.map(p => `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#16171d; padding:10px; border-radius:8px; margin-bottom:5px;">
+                <span>${p.ign}</span>
+                <button class="btn-red" style="width:auto; padding:5px 10px; font-size:10px;" onclick="deletePlayer('${p.ign}')">DELETE</button>
+            </div>
+        `).join('');
+    }
+
+    async function deletePlayer(ign) {
+        if(!confirm(`Permanently delete ${ign}?`)) return;
+        await client.from('players').delete().eq('ign', ign);
+        alert("Deleted."); searchPlayer();
+    }
+
+    // --- NEWS & STAFF ---
+    async function postNews() {
+        const title = document.getElementById('news_title').value;
+        const body = document.getElementById('news_body').value;
+        await client.from('announcements').insert([{ title, body }]);
+        alert("News Posted!");
+    }
+
+    async function updateStaff() {
+        const id = document.getElementById('staff_id').value;
+        const role = document.getElementById('staff_role').value;
+        await client.from('staff').upsert({ discord_id: id, role }, { onConflict: 'discord_id' });
+        alert("Staff Roster Updated!");
+    }
 </script>
 </body>
 </html>
