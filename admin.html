@@ -3,322 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arise Tier List | Official Rankings</title>
+    <title>Admin Panel | Arise Network</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
         :root {
             --bg: #050505; --panel: #0d0e12; --border: #1f2026; --gold: #ffb400;
-            --gold-glow: rgba(255, 180, 0, 0.3); --text-dim: #929292; --discord: #5865F2;
-            --online: #43b581; --idle: #faa61a; --dnd: #f04747; --offline: #747f8d;
+            --text-dim: #929292; --danger: #ff4d4d;
         }
 
-        * { box-sizing: border-box; scroll-behavior: smooth; outline: none; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
-
-        /* --- NAVIGATION --- */
-        .header-nav {
-            position: fixed; top: 0; width: 100%; height: 90px;
-            background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .nav-container { display: flex; align-items: center; gap: 30px; }
-        .nav-item {
-            color: var(--text-dim); text-decoration: none;
-            font-weight: 800; font-size: 12px; cursor: pointer;
-            transition: all 0.3s ease; padding: 12px 18px; border-radius: 10px;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .nav-item:hover { color: #fff; transform: translateY(-2px); }
-        .nav-item.active { color: var(--gold); background: rgba(255, 180, 0, 0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-
-        .container { padding: 130px 8% 60px; max-width: 1500px; margin: 0 auto; }
-        .page { display: none; animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        .page.active { display: block; }
-
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(30px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        /* --- GAMEMODE BUTTONS --- */
-        .gm-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin: 30px 0; scrollbar-width: none; }
-        .gm-btn {
-            background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 14px 22px; 
-            border-radius: 14px; font-weight: 800; font-size: 11px; display: flex; align-items: center; gap: 10px; 
-            cursor: pointer; transition: 0.3s; white-space: nowrap;
-        }
-        .gm-btn:hover { border-color: #444; transform: translateY(-3px); }
-        .gm-btn.active { 
-            background: #1c1d23; border-color: var(--gold); color: #fff; 
-            box-shadow: 0 0 20px var(--gold-glow);
-        }
-        .gm-btn img { width: 22px; height: 22px; border-radius: 5px; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; display: none; }
         
-        /* --- PLAYER TABLE --- */
-        .rank-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
-        .player-row { 
-            background: var(--panel); transition: all 0.3s ease; cursor: pointer;
-            animation: fadeInRow 0.4s ease forwards; opacity: 0;
+        /* --- LOGIN --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999;
         }
-        @keyframes fadeInRow { to { opacity: 1; } }
+        .login-box { background: var(--panel); padding: 40px; border-radius: 20px; border: 1px solid var(--border); width: 350px; text-align: center; }
+
+        h1 { font-weight: 900; color: var(--gold); margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: var(--text-dim); font-weight: 800; cursor: pointer; padding: 10px 20px; }
+        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+
+        .admin-card { background: var(--panel); border: 1px solid var(--border); padding: 25px; border-radius: 20px; margin-bottom: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        label { display: block; font-size: 10px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; font-weight: 800; }
         
-        .player-row:hover { background: #16171d; transform: scale(1.01) translateX(5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .player-row td { padding: 22px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .player-row td:first-child { border-left: 1px solid var(--border); border-radius: 18px 0 0 18px; text-align: center; }
-        .player-row td:last-child { border-right: 1px solid var(--border); border-radius: 0 18px 18px 0; }
-        
-        .rank-badge { padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 14px; }
-        .gold-rank { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold-glow); }
-        .silver-rank { background: #e0e0e0; color: #000; }
-        .bronze-rank { background: #cd7f32; color: #fff; }
-
-        .tier-pill { 
-            display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.4); 
-            padding: 8px 14px; border-radius: 10px; border: 1px solid #222; 
-            font-size: 12px; font-weight: 900; color: var(--gold); transition: 0.2s;
+        input, select, textarea { 
+            width: 100%; background: #16171d; border: 1px solid var(--border); color: #fff; 
+            padding: 12px; border-radius: 10px; font-size: 14px; box-sizing: border-box;
         }
-        .tier-pill:hover { border-color: var(--gold); background: #000; }
-        .tier-pill img { width: 18px; height: 18px; border-radius: 3px; }
 
-        /* --- PLAYER MODAL --- */
-        #playerModal {
-            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 2000;
-            justify-content: center; align-items: center;
+        button { 
+            background: var(--gold); color: #000; border: none; padding: 12px 20px; 
+            border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; width: 100%;
         }
-        .modal-content {
-            background: var(--panel); border: 1px solid var(--border); border-radius: 30px;
-            width: 90%; max-width: 600px; padding: 40px; position: relative;
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes modalPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        
-        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 30px; cursor: pointer; color: var(--text-dim); }
-        .close-modal:hover { color: #fff; }
+        .btn-del { background: none; border: 1px solid var(--danger); color: var(--danger); font-size: 11px; padding: 5px 10px; width: auto; cursor: pointer; }
 
-        .modal-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
-        .skin-view { background: #000; border-radius: 20px; padding: 20px; text-align: center; border: 1px solid #222; }
-        .modal-tiers { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
-
-        /* --- STAFF --- */
-        .tester-card { 
-            background: var(--panel); border: 1px solid var(--border); padding: 25px; 
-            border-radius: 20px; position: relative; transition: 0.3s;
-        }
-        .tester-card:hover { transform: translateY(-5px); border-color: var(--gold); }
-        .owner-superior { border: 2px solid var(--gold); background: linear-gradient(145deg, #0d0e12, #1a1b23); }
-
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; color: var(--text-dim); font-size: 11px; padding: 12px; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
     </style>
 </head>
 <body>
 
-<header class="header-nav">
-    <div class="nav-container">
-        <div class="nav-item active" onclick="showPage('home')">Home</div>
-        <div class="nav-item" onclick="showPage('rankings')">Rankings</div>
-        <div class="nav-item" onclick="showPage('testers')">Testers</div>
-        <div class="nav-item" onclick="showPage('guide')">Guide</div>
-        <div class="nav-item" onclick="showPage('rules')">Rules</div>
-    </div>
-</header>
-
-<div id="playerModal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <div class="modal-grid" id="modalData"></div>
+<div id="login-overlay">
+    <div class="login-box">
+        <h2 style="margin-top:0">Staff Portal</h2>
+        <input type="text" id="adminId" placeholder="Admin ID" style="margin-bottom:10px">
+        <input type="password" id="adminPass" placeholder="Password" style="margin-bottom:20px">
+        <button onclick="checkLogin()">Access Panel</button>
     </div>
 </div>
 
-<div class="container">
-    <div id="home" class="page active">
-        <div style="text-align:center; padding: 60px 0;">
-            <h1 style="font-size: 90px; font-weight: 900; margin: 0; letter-spacing: -5px; line-height: 0.8;">ARISE <span style="color:var(--gold)">NETWORK</span></h1>
-            <p style="color:var(--text-dim); font-size: 18px; margin-top: 20px;">The official tier list for the Asian combat community.</p>
-        </div>
-        <div id="news-feed"></div>
+<div class="container" id="adminContent">
+    <h1>ADMIN <span style="color:white">PANEL</span></h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('players-sec', this)">Players</button>
+        <button class="tab-btn" onclick="switchTab('testers-sec', this)">Staff / Testers</button>
+        <button class="tab-btn" onclick="switchTab('ann-sec', this)">Announcements</button>
     </div>
 
-    <div id="rankings" class="page">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px;">
-            <h1 style="font-size: 40px; margin: 0;">LEADER<span style="color:var(--gold)">BOARD</span></h1>
-            <input type="text" id="pSearch" style="background:var(--panel); border:1px solid var(--border); color:#fff; padding:15px 25px; border-radius:15px; width:300px; font-weight:600;" placeholder="Find a player..." onkeyup="renderPlayers()">
+    <div id="players-sec" class="section active">
+        <div class="admin-card">
+            <h3>Update Player Rank</h3>
+            <div class="form-grid">
+                <div><label>Player IGN</label><input type="text" id="ign"></div>
+                <div><label>Region</label><select id="region"><option value="AS">Asia</option><option value="EU">Europe</option><option value="NA">NA</option></select></div>
+            </div>
+            
+            <div class="form-grid" style="background: #111; padding: 15px; border-radius: 10px;">
+                <div>
+                    <label>Gamemode</label>
+                    <select id="single-gm">
+                        <option>Crystal</option><option>Mace</option><option>Sword</option><option>Nethpot</option>
+                        <option>Axe</option><option>SMP</option><option>Potion</option><option>UHC</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Tier</label>
+                    <select id="single-tier">
+                        <option value="RET">RET (0 pts)</option>
+                        <option value="LT5">LT5 (1 pt)</option><option value="HT5">HT5 (2 pts)</option>
+                        <option value="LT4">LT4 (4 pts)</option><option value="HT4">HT4 (8 pts)</option>
+                        <option value="LT3">LT3 (12 pts)</option><option value="HT3">HT3 (16 pts)</option>
+                        <option value="LT2">LT2 (20 pts)</option><option value="HT2">HT2 (24 pts)</option>
+                        <option value="LT1">LT1 (32 pts)</option><option value="HT1">HT1 (40 pts)</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="savePlayer()">Update Player</button>
         </div>
-
-        <div class="gm-scroll">
-            <div class="gm-btn active" onclick="setGM('all')">OVERALL</div>
-            <div class="gm-btn" onclick="setGM('Crystal')"><img src="https://i.ibb.co/Qj6Rzzjn/crystal.jpg"> CRYSTAL</div>
-            <div class="gm-btn" onclick="setGM('Mace')"><img src="https://i.ibb.co/DHYd2KcH/mace.jpg"> MACE</div>
-            <div class="gm-btn" onclick="setGM('Sword')"><img src="https://i.ibb.co/4q5XZD1/sword.jpg"> SWORD</div>
-            <div class="gm-btn" onclick="setGM('Nethpot')"><img src="https://i.ibb.co/QRjqZ1d/nethpot.jpg"> NETHPOT</div>
-            <div class="gm-btn" onclick="setGM('Axe')"><img src="https://i.ibb.co/Vc73Q3sV/axe.jpg"> AXE</div>
-            <div class="gm-btn" onclick="setGM('SMP')"><img src="https://i.ibb.co/zhMLjTFK/smp.jpg"> SMP</div>
-            <div class="gm-btn" onclick="setGM('Potion')"><img src="https://i.ibb.co/TqvdKKCg/pot.jpg"> POTION</div>
-            <div class="gm-btn" onclick="setGM('UHC')"><img src="https://i.ibb.co/7tWt3CvQ/uhc.jpg"> UHC</div>
-        </div>
-
-        <table class="rank-table">
-            <thead>
-                <tr style="text-align:left; font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">
-                    <th style="padding-left:22px;">Rank</th>
-                    <th>Player</th>
-                    <th id="stat-header">Total Points</th>
-                    <th>Region</th>
-                    <th style="text-align:right; padding-right:22px;">Current Tiers</th>
-                </tr>
-            </thead>
-            <tbody id="pBody"></tbody>
-        </table>
+        <div class="admin-card"><table id="playerTable"><thead><tr><th>IGN</th><th>Points</th><th>Action</th></tr></thead><tbody></tbody></table></div>
     </div>
 
-    <div id="testers" class="page"><div class="tester-grid" id="tester-list"></div></div>
-    <div id="guide" class="page"><div class="tester-grid" id="guide-list"></div></div>
-    <div id="rules" class="page"><div id="rules-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;"></div></div>
+    <div id="testers-sec" class="section">
+        <div class="admin-card">
+            <h3>Add Staff</h3>
+            <div class="form-grid">
+                <input type="text" id="t_discord" placeholder="Discord User">
+                <input type="text" id="t_role" placeholder="Role (e.g. Senior Tester)">
+            </div>
+            <button onclick="saveTester()">Add to Staff</button>
+        </div>
+        <div class="admin-card"><table id="testerTable"><thead><tr><th>Discord</th><th>Role</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <div id="ann-sec" class="section">
+        <div class="admin-card">
+            <h3>Post Announcement</h3>
+            <input type="text" id="ann_title" placeholder="Title" style="margin-bottom:10px">
+            <textarea id="ann_body" placeholder="Message..." rows="3" style="margin-bottom:15px"></textarea>
+            <button onclick="saveAnn()">Post</button>
+        </div>
+        <div class="admin-card"><table id="annTable"><thead><tr><th>Title</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+    </div>
 </div>
 
 <script>
     const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
-    const iconMap = { Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" };
+    
+    // Points updated per your request
     const tierPoints = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1, "RET": 0 };
-    const tierWeights = { "HT1": 11, "LT1": 10, "HT2": 9, "LT2": 8, "HT3": 7, "LT3": 6, "HT4": 5, "LT4": 4, "HT5": 3, "LT5": 2, "RET": 1 };
 
-    let playersData = [];
-    let currentGM = 'all';
-    let sortedList = []; // NEW: Tracking current display order
-
-    async function initialize() {
-        const { data: players } = await supabaseClient.from('players').select('*');
-        playersData = players || [];
-        renderPlayers();
-
-        const { data: ann } = await supabaseClient.from('announcements').select('*').order('created_at', { ascending: false }).limit(2);
-        const newsEl = document.getElementById('news-feed');
-        if (newsEl) newsEl.innerHTML = ann?.map(n => `<div class="card" style="border-left:4px solid var(--gold);"><h3>${n.title}</h3><p style="color:var(--text-dim)">${n.body}</p></div>`).join('') || "";
-
-        loadStaff();
-        loadStatic();
+    function checkLogin() {
+        if(document.getElementById('adminId').value === "Legend_008" && document.getElementById('adminPass').value === "VISHAL@2008") {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+            loadPlayers(); loadTesters(); loadAnns();
+        } else { alert("Access Denied"); }
     }
 
-    function renderPlayers() {
-        const query = document.getElementById('pSearch').value.toLowerCase();
-        const body = document.getElementById('pBody');
-        let filtered = playersData.filter(p => p.ign.toLowerCase().includes(query));
-
-        if (currentGM !== 'all') {
-            filtered = filtered.filter(p => (p.tiers || {})[currentGM]);
-            filtered.sort((a, b) => (tierWeights[b.tiers[currentGM]] || 0) - (tierWeights[a.tiers[currentGM]] || 0));
-        } else {
-            filtered.sort((a, b) => b.points - a.points);
-        }
-
-        sortedList = filtered; // Update the list used for rank lookup
-
-        body.innerHTML = filtered.map((p, i) => {
-            let rankClass = i === 0 ? 'gold-rank' : i === 1 ? 'silver-rank' : i === 2 ? 'bronze-rank' : '';
-            let val = currentGM === 'all' ? p.points : (tierPoints[p.tiers[currentGM]] || 0);
-            return `
-            <tr class="player-row" onclick="openPlayer('${p.ign}')" style="animation-delay: ${i * 0.05}s">
-                <td style="padding-left:22px;"><span class="rank-badge ${rankClass}">${i + 1}</span></td>
-                <td><div style="display:flex;align-items:center;gap:15px;"><img src="https://mc-heads.net/avatar/${p.ign}/40" style="border-radius:8px; border:1px solid #333;"><b>${p.ign}</b></div></td>
-                <td><b style="color:var(--gold); font-size:18px;">${val}</b></td>
-                <td><span style="background:var(--discord);padding:5px 10px;border-radius:8px;font-size:10px;font-weight:900;">${p.region}</span></td>
-                <td style="text-align:right; padding-right:22px;">
-                    ${Object.entries(p.tiers || {}).filter(([m]) => currentGM === 'all' || m === currentGM)
-                    .map(([k,v]) => `<div class="tier-pill"><img src="${iconMap[k]}">${v}</div>`).join('')}
-                </td>
-            </tr>`;
-        }).join('');
+    function switchTab(id, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
     }
 
-    function openPlayer(ign) {
-        const p = playersData.find(x => x.ign === ign);
-        const displayRank = sortedList.findIndex(x => x.ign === ign) + 1; // FIX: Looking up rank in sorted list
-        const modal = document.getElementById('playerModal');
-        const content = document.getElementById('modalData');
-        
-        content.innerHTML = `
-            <div class="skin-view">
-                <img src="https://mc-heads.net/body/${p.ign}/180" alt="skin">
-                <h2 style="margin: 20px 0 5px;">${p.ign}</h2>
-                <span style="color:var(--gold); font-weight:900;">RANK #${displayRank}</span>
-            </div>
-            <div>
-                <h4 style="color:var(--text-dim); margin:0; text-transform:uppercase; font-size:11px;">Player Stats</h4>
-                <h1 style="margin: 5px 0 20px; font-size:45px;">${p.points} <span style="font-size:14px; color:var(--text-dim);">PTS</span></h1>
-                
-                <h4 style="color:var(--text-dim); margin:0; text-transform:uppercase; font-size:11px;">Tier Breakdown</h4>
-                <div class="modal-tiers">
-                    ${Object.entries(p.tiers || {}).map(([k,v]) => `
-                        <div class="tier-pill" style="padding: 12px 18px; font-size:14px;">
-                            <img src="${iconMap[k]}" style="width:24px; height:24px;"> 
-                            <span>${k}: <b>${v}</b></span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div style="margin-top:30px; background:#111; padding:20px; border-radius:15px; border:1px solid #222;">
-                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
-                        <span>Progress to Top 1</span>
-                        <span>${Math.round((p.points / sortedList[0].points) * 100)}%</span>
-                    </div>
-                    <div style="height:8px; background:#222; border-radius:10px; overflow:hidden;">
-                        <div style="width:${(p.points / sortedList[0].points) * 100}%; background:var(--gold); height:100%; transition:1s;"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-        modal.style.display = 'flex';
+    // --- PLAYERS ---
+    async function savePlayer() {
+        const ign = document.getElementById('ign').value.trim();
+        const region = document.getElementById('region').value;
+        const gm = document.getElementById('single-gm').value;
+        const tier = document.getElementById('single-tier').value;
+        if(!ign) return alert("Enter IGN");
+
+        let { data: existing } = await supabaseClient.from('players').select('*').eq('ign', ign).maybeSingle();
+        let pTiers = existing ? existing.tiers : {};
+        pTiers[gm] = tier;
+
+        let total = 0;
+        Object.values(pTiers).forEach(t => { total += (tierPoints[t] || 0); });
+
+        // Fixes the "Duplicate Key" error
+        const { error } = await supabaseClient.from('players').upsert(
+            { ign, region, tiers: pTiers, points: total }, 
+            { onConflict: 'ign' }
+        );
+
+        if(error) alert(error.message);
+        else { alert("Saved!"); loadPlayers(); }
     }
 
-    function closeModal() { document.getElementById('playerModal').style.display = 'none'; }
-    window.onclick = (e) => { if(e.target == document.getElementById('playerModal')) closeModal(); }
-
-    function setGM(gm) {
-        currentGM = gm;
-        document.querySelectorAll('.gm-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(gm.toLowerCase())));
-        document.getElementById('stat-header').innerText = gm === 'all' ? 'TOTAL POINTS' : `${gm.toUpperCase()} PTS`;
-        renderPlayers();
+    async function loadPlayers() {
+        const { data } = await supabaseClient.from('players').select('*').order('points', {ascending: false});
+        document.querySelector('#playerTable tbody').innerHTML = (data || []).map(p => `<tr><td>${p.ign}</td><td>${p.points}</td><td><button class="btn-del" onclick="delData('players','ign','${p.ign}',loadPlayers)">Del</button></td></tr>`).join('');
     }
 
-    function showPage(p) {
-        document.querySelectorAll('.page').forEach(pg => pg.classList.toggle('active', pg.id === p));
-        document.querySelectorAll('.nav-item').forEach(ni => ni.classList.toggle('active', ni.innerText.toLowerCase() === p));
+    // --- STAFF (Targeting table 'staff') ---
+    async function saveTester() {
+        await supabaseClient.from('staff').insert({ discord_id: document.getElementById('t_discord').value, role: document.getElementById('t_role').value });
+        loadTesters();
     }
 
-    async function loadStaff() {
-        const { data: staff } = await supabaseClient.from('staff').select('*');
-        const grid = document.getElementById('tester-list');
-        if (!grid) return;
-        grid.innerHTML = "";
-        for (const s of (staff || [])) {
-            const res = await fetch(`https://api.lanyard.rest/v1/users/${s.discord_id}`).then(r => r.json());
-            const user = res.data?.discord_user;
-            const status = res.data?.discord_status || 'offline';
-            grid.innerHTML += `
-                <div class="tester-card ${s.role === 'Owner' ? 'owner-superior' : ''}">
-                    <div class="status-badge"><div class="status-dot" style="background:var(--${status})"></div> ${status}</div>
-                    <div style="display:flex; align-items:center; gap:20px;">
-                        <img src="https://cdn.discordapp.com/avatars/${s.discord_id}/${user?.avatar}.png" class="tester-avatar" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/60'">
-                        <div><div style="color:var(--gold); font-size:10px; font-weight:900;">${s.role}</div><div style="font-size:18px; font-weight:800;">${user?.global_name || user?.username || 'Unknown'}</div></div>
-                    </div>
-                </div>`;
-        }
+    async function loadTesters() {
+        const { data } = await supabaseClient.from('staff').select('*');
+        document.querySelector('#testerTable tbody').innerHTML = (data || []).map(t => `<tr><td>${t.discord_id}</td><td>${t.role}</td><td><button class="btn-del" onclick="delData('staff','discord_id','${t.discord_id}',loadTesters)">Del</button></td></tr>`).join('');
     }
 
-    function loadStatic() {
-        const rules = ["1. Tier Testing Only Counts Here", "2. Be Honest", "3. No Cheating", "4. Participation Required", "5. Respect the Testers", "6. Clips Are for Review Only", "7. Timeliness Matters", "8. Testing Environment", "9. Skill Over Style", "10. Communication", "11. Privacy & Security", "12. Re-Tier Requests", "13. Fair Competition", "14. Feedback Welcome", "15. Consequences Are Real", "16. Your Skill = Your Tier"];
-        const guides = [{ t: "Netherite Potion", img: "https://i.ibb.co/j0R7xgB/Ry-HWR7F.webp", d: "FT4 testing. LT3 score: 3-4." }, { t: "Sword PvP", img: "https://i.ibb.co/4nPj7q1J/w-Txkbpa.webp", d: "FT10 testing. Diamond Sword." }, { t: "Axe PvP", img: "https://i.ibb.co/z33C5wC/image-1.webp", d: "FT10 testing. Unenchanted." }, { t: "SMP Kit", img: "https://i.ibb.co/FbrQxvCd/L6b5d4m.webp", d: "FT3 testing. Netherite P4." }, { t: "Crystal PvP", img: "https://i.ibb.co/cctTKK0N/Gl2LJt-Y.webp", d: "14 Totems. No Gapples." }, { t: "Mace PvP", img: "https://i.ibb.co/ymvkqBHm/dwawadadwwadawd.webp", d: "FT3 testing. Breach IV." }, { t: "UHC", img: "https://i.ibb.co/sJzv07gk/AT0i-JN9.webp", d: "FT10. P3 Diamond." }, { t: "Potion PvP", img: "https://i.ibb.co/F4t8VRLF/3Y1c-Sjq.webp", d: "FT5/10. P4 Armor." }];
-        const rulesEl = document.getElementById('rules-list');
-        const guideEl = document.getElementById('guide-list');
-        if (rulesEl) rulesEl.innerHTML = rules.map(r => `<div class="card" style="margin:0; padding:20px; background:var(--panel); border:1px solid var(--border); border-radius:10px;"><b>${r}</b></div>`).join('');
-        if (guideEl) guideEl.innerHTML = guides.map(g => `<div class="card" style="background:var(--panel); border:1px solid var(--border); padding:20px; border-radius:15px;"><h2>${g.t}</h2><p style="color:var(--text-dim)">${g.d}</p><img src="${g.img}" style="width:100%; border-radius:10px; margin-top:10px;"></div>`).join('');
+    // --- ANNOUNCEMENTS ---
+    async function saveAnn() {
+        await supabaseClient.from('announcements').insert({ title: document.getElementById('ann_title').value, body: document.getElementById('ann_body').value });
+        loadAnns();
+    }
+    async function loadAnns() {
+        const { data } = await supabaseClient.from('announcements').select('*').order('created_at', {ascending: false});
+        document.querySelector('#annTable tbody').innerHTML = (data || []).map(a => `<tr><td>${a.title}</td><td><button class="btn-del" onclick="delData('announcements','id','${a.id}',loadAnns)">Del</button></td></tr>`).join('');
     }
 
-    window.onload = initialize;
+    async function delData(table, col, val, cb) {
+        if(confirm("Confirm Delete?")) { await supabaseClient.from(table).delete().eq(col, val); cb(); }
+    }
 </script>
 </body>
 </html>
