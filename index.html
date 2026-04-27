@@ -59,7 +59,7 @@
         .f-item.active { background: #fff; border-color: #fff; transform: translateY(-3px); }
         .f-item.active img { filter: invert(1); }
 
-        .rank-row { background: var(--surface); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 20px; padding: 15px 25px; margin-bottom: 10px; display: grid; grid-template-columns: 50px 2fr 1fr 1fr 2fr; align-items: center; cursor: pointer; transition: 0.3s; }
+        .rank-row { background: var(--surface); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 20px; padding: 15px 25px; margin-bottom: 10px; display: grid; grid-template-columns: 50px 2fr 1fr 1fr 2.5fr; align-items: center; cursor: pointer; transition: 0.3s; }
         .rank-row:hover { background: rgba(255,255,255,0.03); transform: translateX(8px); border-color: var(--accent); }
         
         .ign-name { font-size: 17px; font-weight: 700; }
@@ -187,6 +187,7 @@
         document.getElementById('player-list').innerHTML = filtered.map((p, i) => {
             const reg = p.region.toLowerCase(), regClass = reg === 'eu' ? 'reg-eu' : reg === 'as' ? 'reg-as' : '';
             const title = getTitle(p.points);
+            // FIX: Removed .slice(0, 3) and added flex styles to container for proper wrapping
             return `<div class="rank-row" onclick="openPlayer('${p.ign}', ${i+1})">
                 <div style="font-weight:900; color:var(--text-dim);">#${i+1}</div>
                 <div style="display:flex; align-items:center; gap:12px;">
@@ -195,7 +196,13 @@
                 </div>
                 <div style="font-weight:900; color:var(--gold);">${currentGM === 'all' ? p.points : (tierPoints[p.tiers[currentGM]] || 0)} pts</div>
                 <div><span class="reg-tag ${regClass}">${p.region.toUpperCase()}</span></div>
-                <div style="text-align:right;">${Object.entries(p.tiers || {}).slice(0, 3).map(([k,v]) => `<div style="display:inline-flex; align-items:center; gap:5px; background:rgba(0,0,0,0.4); padding:5px 10px; border-radius:8px; font-size:10px; font-weight:900; color:var(--accent); margin-left:8px; border:1px solid var(--border);"><img src="${iconMap[k]}" style="width:14px; height:14px;">${v}</div>`).join('')}</div>
+                <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px;">
+                    ${Object.entries(p.tiers || {}).map(([k,v]) => `
+                        <div style="display:inline-flex; align-items:center; gap:5px; background:rgba(0,0,0,0.4); padding:5px 10px; border-radius:8px; font-size:10px; font-weight:900; color:var(--accent); border:1px solid var(--border);">
+                            <img src="${iconMap[k]}" style="width:14px; height:14px;">${v}
+                        </div>
+                    `).join('')}
+                </div>
             </div>`;
         }).join('');
     }
