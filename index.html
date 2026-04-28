@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arise Network | Elite Rankings</title>
+    
+    <!-- FAVICON (Tab Icon) -->
+    <link rel="icon" type="image/webp" href="https://i.ibb.co/xtrFjXxK/Chat-GPT-Image-Apr-28-2026-10-49-55-AM.webp">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -187,7 +191,6 @@
         document.getElementById('player-list').innerHTML = filtered.map((p, i) => {
             const reg = p.region.toLowerCase(), regClass = reg === 'eu' ? 'reg-eu' : reg === 'as' ? 'reg-as' : '';
             const title = getTitle(p.points);
-            // FIX: Removed .slice(0, 3) and added flex styles to container for proper wrapping
             return `<div class="rank-row" onclick="openPlayer('${p.ign}', ${i+1})">
                 <div style="font-weight:900; color:var(--text-dim);">#${i+1}</div>
                 <div style="display:flex; align-items:center; gap:12px;">
