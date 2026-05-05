@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel | Arise Network</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 1. Added SortableJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -16,7 +18,6 @@
         body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; display: none; }
         
-        /* --- LOGIN --- */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999;
@@ -49,6 +50,10 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { text-align: left; color: var(--text-dim); font-size: 11px; padding: 12px; border-bottom: 1px solid var(--border); }
         td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        
+        /* Dragging styles */
+        .sortable-ghost { opacity: 0.4; background: var(--gold) !important; }
+        .drag-handle { cursor: grab; color: var(--text-dim); padding-right: 10px; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -71,6 +76,7 @@
         <button class="tab-btn" onclick="switchTab('ann-sec', this)">Announcements</button>
     </div>
 
+    <!-- Players Section -->
     <div id="players-sec" class="section active">
         <div class="admin-card">
             <h3>Update Player Rank</h3>
@@ -104,18 +110,35 @@
         <div class="admin-card"><table id="playerTable"><thead><tr><th>IGN</th><th>Points</th><th>Action</th></tr></thead><tbody></tbody></table></div>
     </div>
 
+    <!-- Staff Section -->
     <div id="testers-sec" class="section">
         <div class="admin-card">
             <h3>Add Staff</h3>
+            <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 15px;">Tip: Drag rows to reorder them on the website.</p>
             <div class="form-grid">
                 <input type="text" id="t_discord" placeholder="Discord User">
                 <input type="text" id="t_role" placeholder="Role (e.g. Senior Tester)">
             </div>
             <button onclick="saveTester()">Add to Staff</button>
         </div>
-        <div class="admin-card"><table id="testerTable"><thead><tr><th>Discord</th><th>Role</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+        <div class="admin-card">
+            <table id="testerTable">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;"></th>
+                        <th>Discord</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="staff-list-body">
+                    <!-- Loaded via JS -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Announcements -->
     <div id="ann-sec" class="section">
         <div class="admin-card">
             <h3>Post Announcement</h3>
@@ -132,7 +155,6 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
     
-    // Points updated per your request
     const tierPoints = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1, "RET": 0 };
 
     function checkLogin() {
@@ -140,6 +162,7 @@
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
             loadPlayers(); loadTesters(); loadAnns();
+            initSortable(); // Initialize drag-and-drop
         } else { alert("Access Denied"); }
     }
 
@@ -148,6 +171,29 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         btn.classList.add('active');
+    }
+
+    // --- DRAG AND DROP LOGIC ---
+    function initSortable() {
+        const el = document.getElementById('staff-list-body');
+        Sortable.create(el, {
+            animation: 150,
+            handle: '.drag-handle', // Restricted dragging to the handle icon
+            ghostClass: 'sortable-ghost',
+            onEnd: async function() {
+                const rows = Array.from(el.querySelectorAll('tr'));
+                // Create updates for all rows based on their new visual position
+                const updates = rows.map((row, index) => ({
+                    discord_id: row.getAttribute('data-id'),
+                    role: row.getAttribute('data-role'),
+                    display_order: index // New position
+                }));
+
+                // Update Supabase
+                const { error } = await supabaseClient.from('staff').upsert(updates);
+                if (error) console.error("Error saving order:", error);
+            }
+        });
     }
 
     // --- PLAYERS ---
@@ -165,7 +211,6 @@
         let total = 0;
         Object.values(pTiers).forEach(t => { total += (tierPoints[t] || 0); });
 
-        // Fixes the "Duplicate Key" error
         const { error } = await supabaseClient.from('players').upsert(
             { ign, region, tiers: pTiers, points: total }, 
             { onConflict: 'ign' }
@@ -180,30 +225,33 @@
         document.querySelector('#playerTable tbody').innerHTML = (data || []).map(p => `<tr><td>${p.ign}</td><td>${p.points}</td><td><button class="btn-del" onclick="delData('players','ign','${p.ign}',loadPlayers)">Del</button></td></tr>`).join('');
     }
 
-    // --- STAFF (Targeting table 'staff') ---
+    // --- STAFF (Updated to handle order) ---
     async function saveTester() {
-        await supabaseClient.from('staff').insert({ discord_id: document.getElementById('t_discord').value, role: document.getElementById('t_role').value });
+        // Find current max order to put new staff at the end
+        const { data: currentStaff } = await supabaseClient.from('staff').select('display_order');
+        const maxOrder = currentStaff?.length > 0 ? Math.max(...currentStaff.map(s => s.display_order || 0)) + 1 : 0;
+
+        await supabaseClient.from('staff').insert({ 
+            discord_id: document.getElementById('t_discord').value, 
+            role: document.getElementById('t_role').value,
+            display_order: maxOrder 
+        });
         loadTesters();
     }
 
     async function loadTesters() {
-        const { data } = await supabaseClient.from('staff').select('*');
-        document.querySelector('#testerTable tbody').innerHTML = (data || []).map(t => `<tr><td>${t.discord_id}</td><td>${t.role}</td><td><button class="btn-del" onclick="delData('staff','discord_id','${t.discord_id}',loadTesters)">Del</button></td></tr>`).join('');
+        // Sorted by display_order so the list matches the saved sequence
+        const { data } = await supabaseClient.from('staff').select('*').order('display_order', { ascending: true });
+        
+        document.getElementById('staff-list-body').innerHTML = (data || []).map(t => `
+            <tr data-id="${t.discord_id}" data-role="${t.role}">
+                <td class="drag-handle">☰</td>
+                <td>${t.discord_id}</td>
+                <td>${t.role}</td>
+                <td><button class="btn-del" onclick="delData('staff','discord_id','${t.discord_id}',loadTesters)">Del</button></td>
+            </tr>`).join('');
     }
 
     // --- ANNOUNCEMENTS ---
     async function saveAnn() {
-        await supabaseClient.from('announcements').insert({ title: document.getElementById('ann_title').value, body: document.getElementById('ann_body').value });
-        loadAnns();
-    }
-    async function loadAnns() {
-        const { data } = await supabaseClient.from('announcements').select('*').order('created_at', {ascending: false});
-        document.querySelector('#annTable tbody').innerHTML = (data || []).map(a => `<tr><td>${a.title}</td><td><button class="btn-del" onclick="delData('announcements','id','${a.id}',loadAnns)">Del</button></td></tr>`).join('');
-    }
-
-    async function delData(table, col, val, cb) {
-        if(confirm("Confirm Delete?")) { await supabaseClient.from(table).delete().eq(col, val); cb(); }
-    }
-</script>
-</body>
-</html>
+        await supabaseClient.from('announcements').insert({ title: document.getElementById('ann_title').value, body: document.getElementById('ann_body').
