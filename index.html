@@ -572,66 +572,54 @@
         }).join('');
     }
 
-    async function loadStaff() {
-        const { data: staff } = await supabaseClient.from('staff').select('*');
-        const grid = document.getElementById('staff-list'); grid.innerHTML = "";
-        for (const s of (staff || [])) {
-            const res = await fetch(`https://api.lanyard.rest/v1/users/${s.discord_id}`).then(r => r.json());
-            const user = res.data?.discord_user, isOwner = s.role.toLowerCase().includes('owner');
-            grid.innerHTML += `<div class="card ${isOwner ? 'owner-superior' : ''}" style="display:flex; align-items:center;">
-                <img src="https://cdn.discordapp.com/avatars/${s.discord_id}/${user?.avatar}.png" class="staff-pfp" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/50'">
-                <div><h3 style="font-size:18px;">${user?.global_name || s.role}</h3><p style="font-size:11px; font-weight:900; color:${isOwner ? 'var(--gold)' : 'var(--accent)'}">${s.role.toUpperCase()}${isOwner ? ' [FOUNDER]' : ''}</p></div>
-            </div>`;
+   async function loadStaff() {
+    const { data: staff } = await supabaseClient.from('staff').select('*');
+    const grid = document.getElementById('staff-list'); 
+    grid.innerHTML = "";
+
+    // Your Wispbyte IP and Port
+    const API_BASE = "http://85.215.220.246:9819/user";
+
+    for (const s of (staff || [])) {
+        let displayName = s.role; // Fallback to DB role
+        let avatarUrl = `https://mc-heads.net/avatar/MHF_Question/50`; // Fallback pfp
+        let statusColor = "#64748b"; // Offline color
+
+        try {
+            const res = await fetch(`${API_BASE}/${s.discord_id}`).then(r => r.json());
+            
+            if (res.success && res.data) {
+                const user = res.data.discord_user;
+                displayName = user.global_name;
+                
+                if (user.avatar) {
+                    avatarUrl = `https://cdn.discordapp.com/avatars/${s.discord_id}/${user.avatar}.png`;
+                }
+
+                // Map status to colors
+                const status = res.data.discord_status;
+                if (status === 'online') statusColor = "#22c55e";
+                if (status === 'dnd') statusColor = "#ef4444";
+                if (status === 'idle') statusColor = "#eab308";
+            }
+        } catch (error) {
+            console.log("Could not reach API for member: " + s.discord_id);
         }
-    }
 
-    function loadRules() {
-        const rules = ["Tests Count Here Only", "Honesty Required", "No Cheating", "Attendance Mandatory", "Respect Staff", "Clips Supplemental", "Be On Time", "Proper Setup", "Relevant Chat", "Privacy Matters", "Re-Tier Review", "Decisions Final"];
-        document.getElementById('rules-list').innerHTML = rules.map((r, i) => `<div class="card"><h3>${i+1}. ${r}</h3><p style="color:var(--text-dim); font-size:13px;">Authorized Protocol.</p></div>`).join('');
-    }
-
-    function openPlayer(ign, rank) {
-        const p = playersData.find(x => x.ign === ign);
-        const title = getTitle(p.points);
-        document.getElementById('modalTarget').innerHTML = `
-            <div class="modal-header">
-                <div class="modal-avatar-new"><img src="https://mc-heads.net/avatar/${p.ign}/100"></div>
-                <div class="modal-info">
-                    <h2 class="modal-name">${p.ign}</h2>
-                    <div class="glow-badge ${title.c}">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"/></svg>
-                        ${title.n}
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 2px;">
-                        <span class="modal-region">${p.region.toUpperCase()}</span>
-                        <a href="https://namemc.com/profile/${p.ign}" target="_blank" class="namemc-btn">
-                            <span class="nmc-icon">n</span> NameMC &rarr;
-                        </a>
-                    </div>
+        const isOwner = s.role.toLowerCase().includes('owner');
+        grid.innerHTML += `
+            <div class="card ${isOwner ? 'owner-superior' : ''}" style="display:flex; align-items:center; position:relative;">
+                <div style="position:absolute; top:15px; right:15px; width:10px; height:10px; border-radius:50%; background:${statusColor}; box-shadow: 0 0 10px ${statusColor};"></div>
+                <img src="${avatarUrl}" class="staff-pfp" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/50'">
+                <div>
+                    <h3 style="font-size:18px;">${displayName}</h3>
+                    <p style="font-size:11px; font-weight:900; color:${isOwner ? 'var(--gold)' : 'var(--accent)'}">
+                        ${s.role.toUpperCase()}${isOwner ? ' [FOUNDER]' : ''}
+                    </p>
                 </div>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
-            </div>
-
-            <div class="modal-score-bar">
-                <div class="modal-rank-badge">#${rank}</div>
-                <div class="modal-gm-name">
-                    <span>🏆</span> OVERALL
-                </div>
-                <div class="modal-points">[${p.points} points]</div>
-            </div>
-
-            <div class="modal-tiers-grid">
-                ${Object.entries(p.tiers || {}).map(([gm, tier]) => `
-                    <div class="tier-item">
-                        <div class="tier-img-box"><img src="${iconMap[gm]}"></div>
-                        <span class="tier-tag">${tier}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-        document.getElementById('playerModal').style.display = 'flex';
+            </div>`;
     }
-
+}
     function closeModal() { document.getElementById('playerModal').style.display = 'none'; }
     function setGM(gm) { currentGM = gm; document.querySelectorAll('.f-item').forEach(b => b.classList.toggle('active', b.outerHTML.includes(`'${gm}'`))); renderPlayers(); }
     
