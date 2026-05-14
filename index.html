@@ -12,7 +12,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bg: #09090b; /* Deeper, more premium dark background */
+            --bg: #09090b;
             --surface: rgba(20, 20, 28, 0.75);
             --border: rgba(255, 255, 255, 0.08);
             --accent: #8b5cf6;
@@ -21,6 +21,13 @@
             --eu-green: #34d399;
             --as-sky: #38bdf8;
             --text-dim: #94a3b8;
+            
+            /* Tier Colors */
+            --t-lt3: #a855f7;
+            --t-lt2: #22c55e;
+            --t-ht3: #f97316;
+            --t-ht2: #ef4444;
+            --t-ht1: #eab308;
         }
 
         /* --- GLOBAL STYLING --- */
@@ -36,7 +43,6 @@
             background-attachment: fixed;
         }
 
-        /* --- ANIMATIONS --- */
         @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
         /* --- NAVIGATION --- */
@@ -49,7 +55,7 @@
         .page { display: none; animation: popIn 0.5s ease-out both; }
         .page.active { display: block; }
 
-        /* --- HOME HERO --- */
+        /* --- HOME --- */
         .hero { text-align: center; padding: 40px 0 60px; }
         .hero h1 { font-family: 'Plus Jakarta Sans'; font-size: clamp(35px, 8vw, 90px); letter-spacing: -4px; line-height: 0.9; }
         .hero h1 span { color: var(--accent); text-shadow: 0 0 40px var(--accent-glow); }
@@ -67,143 +73,71 @@
         .rank-row:hover { background: rgba(30,30,40,0.8); transform: translateX(6px); border-color: rgba(139, 92, 246, 0.5); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15); }
         .ign-name { font-size: 17px; font-weight: 700; color: #fff; }
         
-        /* Premium Glowing Title Tags */
-        .title-tag { 
-            display: inline-flex; align-items: center; gap: 4px;
-            font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; 
-            margin-top: 5px; padding: 3px 8px; border-radius: 6px; 
-            background: rgba(0,0,0,0.4); border: 1px solid currentColor;
-        }
-        .title-tag.nov { color: #94a3b8; box-shadow: 0 0 8px rgba(148,163,184,0.3); border-color: rgba(148,163,184,0.5); }
-        .title-tag.app { color: #38bdf8; box-shadow: 0 0 8px rgba(56,189,248,0.3); border-color: rgba(56,189,248,0.5); }
-        .title-tag.vet { color: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.3); border-color: rgba(52,211,153,0.5); }
-        .title-tag.elite { color: #f87171; box-shadow: 0 0 8px rgba(248,113,113,0.3); border-color: rgba(248,113,113,0.5); }
-        .title-tag.master { color: #c084fc; box-shadow: 0 0 8px rgba(192,132,252,0.3); border-color: rgba(192,132,252,0.5); }
-        .title-tag.gm { color: #facc15; box-shadow: 0 0 8px rgba(250,204,21,0.3); border-color: rgba(250,204,21,0.5); }
+        .title-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; padding: 3px 8px; border-radius: 6px; background: rgba(0,0,0,0.4); border: 1px solid currentColor; }
+        .title-tag.nov { color: #94a3b8; }
+        .title-tag.app { color: #38bdf8; }
+        .title-tag.vet { color: #34d399; }
+        .title-tag.elite { color: #f87171; }
+        .title-tag.master { color: #c084fc; }
+        .title-tag.gm { color: #facc15; }
 
         .reg-tag { font-size: 10px; font-weight: 900; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; }
         .reg-eu { color: var(--eu-green); border: 1px solid rgba(52, 211, 153, 0.2); }
         .reg-as { color: var(--as-sky); border: 1px solid rgba(56, 189, 248, 0.2); }
 
-        /* --- GUIDE SPECIFIC STYLES --- */
+        /* --- STAFF SECTION --- */
+        .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; margin-top: 30px; }
+        .staff-card { background: #111116; border: 1px solid var(--border); padding: 15px 20px; border-radius: 14px; display: flex; align-items: center; gap: 15px; transition: 0.2s; }
+        .staff-pfp-box { position: relative; flex-shrink: 0; }
+        .staff-pfp { width: 55px; height: 55px; border-radius: 12px; }
+        .status-dot { position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #111116; }
+        .staff-info { flex: 1; }
+        .staff-name { font-size: 15px; font-weight: 700; color: #d4d4d8; }
+        .staff-status-text { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+
+        /* --- PLAYER MODAL --- */
+        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-box { background: #0f0f13; border: 1px solid rgba(255,255,255,0.1); width: 95%; max-width: 580px; border-radius: 28px; padding: 40px; position: relative; animation: popIn 0.3s ease-out; }
+        .m-header { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .m-ign { font-family: 'Plus Jakarta Sans'; font-size: 28px; font-weight: 800; }
+        .m-badge { background: var(--gold); color: #000; font-size: 14px; font-weight: 900; padding: 6px 18px; border-radius: 50px; text-transform: uppercase; margin: 10px 0; }
+        .m-stats-row { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 18px; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; margin: 25px 0; }
+
+        /* --- GUIDE SPECIFIC (Screenshots Ref) --- */
         .guide-hero { text-align: center; margin-bottom: 50px; }
-        .guide-hero h1 { font-family: 'Plus Jakarta Sans'; font-size: 60px; color: var(--gold); margin-bottom: 10px; text-shadow: 0 0 30px rgba(250,204,21,0.2); }
-        .guide-hero p { color: var(--text-dim); max-width: 600px; margin: 0 auto 30px; }
+        .guide-hero h1 { font-family: 'Plus Jakarta Sans'; font-size: clamp(40px, 6vw, 65px); color: var(--gold); margin-bottom: 10px; font-weight: 800; }
+        .guide-hero p { color: var(--text-dim); max-width: 600px; margin: 0 auto 30px; font-size: 15px; line-height: 1.6; }
 
         .guide-tabs { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; }
-        .g-tab { padding: 15px 40px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; border: 1px solid var(--border); transition: 0.3s; background: var(--surface); color: var(--text-dim); }
-        .g-tab.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 20px rgba(255, 180, 0, 0.3); }
+        .g-tab { padding: 18px 50px; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 16px; border: 1px solid var(--border); transition: 0.3s; background: #111116; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .g-tab.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 30px rgba(250,204,21,0.2); }
 
-        .quick-jump-label { text-align: center; color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
         .quick-jump-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
-        .jump-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700; transition: 0.2s; }
-        .jump-item:hover { border-color: var(--gold); transform: translateY(-3px); background: rgba(250,204,21,0.1); }
-        .jump-item img { width: 18px; height: 18px; border-radius: 3px; }
+        .jump-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(250,204,21,0.2); padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 700; transition: 0.2s; }
+        .jump-item:hover { border-color: var(--gold); background: rgba(250,204,21,0.1); transform: translateY(-3px); }
+        .jump-item img { width: 16px; height: 16px; border-radius: 3px; }
 
-        .guide-card { background: rgba(15, 15, 20, 0.9); border: 1px solid rgba(255, 180, 0, 0.15); border-radius: 25px; padding: 40px; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .guide-card-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
-        .guide-card-header h2 { font-family: 'Plus Jakarta Sans'; font-size: 28px; color: #fff; }
-        .mode-icon-box { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--gold); padding: 10px; border-radius: 15px; box-shadow: 0 0 15px rgba(250,204,21,0.1); }
-
-        .guide-section-label { border-left: 4px solid var(--accent); padding-left: 15px; color: #fff; font-size: 16px; font-weight: 800; margin: 25px 0 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .guide-card { background: #16161d; border: 1px solid rgba(255,255,255,0.05); border-radius: 25px; padding: 40px; margin-bottom: 40px; max-width: 900px; margin-left: auto; margin-right: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .guide-card-header { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; }
+        .guide-card-header h2 { font-family: 'Plus Jakarta Sans'; font-size: 32px; color: #fff; font-weight: 800; }
+        .mode-icon-box { background: rgba(255,255,255,0.03); border: 1px solid var(--gold); padding: 12px; border-radius: 15px; }
+        
+        .guide-section-label { border-left: 4px solid var(--accent); padding-left: 15px; color: #fff; font-size: 17px; font-weight: 800; margin: 30px 0 15px; }
         .guide-list { list-style: none; padding-left: 5px; }
-        .guide-list li { color: var(--text-dim); font-size: 14px; margin-bottom: 10px; display: flex; gap: 10px; line-height: 1.5; }
+        .guide-list li { color: var(--text-dim); font-size: 15px; margin-bottom: 12px; display: flex; gap: 12px; line-height: 1.6; }
         .guide-list li::before { content: "●"; color: var(--gold); font-size: 12px; margin-top: 2px; }
 
-        .kit-box { margin-top: 30px; background: rgba(0, 0, 0, 0.4); border-radius: 15px; padding: 25px; border-top: 2px solid var(--gold); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .kit-box h4 { color: var(--gold); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .kit-box { margin-top: 35px; background: rgba(0, 0, 0, 0.3); border-radius: 18px; padding: 25px; border-top: 2px solid var(--gold); }
+        .kit-box h4 { color: var(--gold); font-size: 15px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
 
         /* Tutorial Styling */
-        .step-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
-        .step-number { width: 35px; height: 35px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; box-shadow: 0 0 15px var(--accent-glow); }
-        .step-text { color: #fff; font-size: 16px; line-height: 1.6; }
-        .step-highlight { background: rgba(139, 92, 246, 0.2); color: #c084fc; padding: 3px 10px; border-radius: 6px; font-family: monospace; font-weight: 700; }
+        .step-item { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 20px; }
+        .step-number { width: 30px; height: 30px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; font-size: 13px; }
+        .step-text { color: #fff; font-size: 16px; line-height: 1.6; font-weight: 600; }
+        .step-highlight { background: rgba(139, 92, 246, 0.2); color: #c084fc; padding: 2px 10px; border-radius: 6px; font-family: monospace; font-weight: 800; border: 1px solid rgba(139, 92, 246, 0.3); }
 
-        /* Video Placeholder */
-        .video-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 25px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .video-container:hover { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
-        .play-btn { width: 80px; height: 80px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2; margin-bottom: 15px; box-shadow: 0 0 20px rgba(239,68,68,0.5); }
-        .play-btn::after { content:''; border-left: 20px solid #fff; border-top: 15px solid transparent; border-bottom: 15px solid transparent; margin-left: 8px; }
-
-        /* --- STAFF GRID --- */
         .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
-        .card { background: var(--surface); border: 1px solid var(--border); padding: 25px; border-radius: 25px; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-5px); }
-        .owner-superior { grid-column: 1 / -1; border: 1px solid rgba(250,204,21,0.4); background: linear-gradient(145deg, rgba(20,20,28,0.9), rgba(30,25,15,0.9)); padding: 40px; box-shadow: 0 10px 40px rgba(250,204,21,0.08); }
-        .staff-pfp { width: 50px; height: 50px; border-radius: 12px; margin-right: 15px; }
-
-        /* --- NEW MODAL STYLING (PREMIUM LOOK) --- */
-        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(15px); }
-        
-        .modal-box { 
-            background: #111116; border: 1px solid rgba(255,255,255,0.08); 
-            width: 95%; max-width: 480px; border-radius: 24px; padding: 30px; 
-            position: relative; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1), 0 0 40px rgba(139, 92, 246, 0.15);
-            animation: popIn 0.4s cubic-bezier(0.17, 0.8, 0.3, 1.2); 
-        }
-
-        .modal-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 25px; }
-        .modal-avatar-new { 
-            width: 85px; height: 85px; border-radius: 16px; overflow: hidden; flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.1); background: #000;
-        }
-        .modal-avatar-new img { width: 100%; height: 100%; object-fit: cover; }
-        .modal-info { text-align: left; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; flex: 1; }
-        .modal-name { font-size: 24px; font-weight: 800; font-family: 'Plus Jakarta Sans'; color: #fff; line-height: 1; margin-bottom: 2px; }
-        .modal-region { font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 1px; }
-
-        .glow-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 5px 14px; border-radius: 20px; font-weight: 800; font-size: 12px;
-            text-transform: uppercase; letter-spacing: 1px;
-            background: rgba(0,0,0,0.5); border: 1px solid currentColor;
-        }
-        .glow-badge svg { width: 14px; height: 14px; }
-        .glow-badge.nov { color: #94a3b8; box-shadow: 0 0 12px rgba(148,163,184,0.3); }
-        .glow-badge.app { color: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,0.3); }
-        .glow-badge.vet { color: #34d399; box-shadow: 0 0 12px rgba(52,211,153,0.3); }
-        .glow-badge.elite { color: #f87171; box-shadow: 0 0 12px rgba(248,113,113,0.3); }
-        .glow-badge.master { color: #c084fc; box-shadow: 0 0 12px rgba(192,132,252,0.3); }
-        .glow-badge.gm { color: #facc15; box-shadow: 0 0 12px rgba(250,204,21,0.3); }
-
-        .namemc-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, #1d4ed8, #2563eb);
-            color: #fff; padding: 6px 14px; border-radius: 10px;
-            text-decoration: none; font-weight: 700; font-size: 12px;
-            transition: 0.3s; box-shadow: 0 4px 15px rgba(37,99,235,0.3);
-            border: 1px solid #3b82f6; margin-top: 4px;
-        }
-        .namemc-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,0.5); background: linear-gradient(135deg, #2563eb, #3b82f6); }
-        .nmc-icon { background: #000; color: #fff; border-radius: 4px; padding: 1px 6px; font-weight: 900; font-family: monospace; font-size: 13px; }
-
-        .close-btn { position: absolute; top: 15px; right: 20px; cursor: pointer; color: #64748b; font-size: 30px; line-height: 1; transition: 0.2s; }
-        .close-btn:hover { color: #fff; transform: scale(1.1); }
-
-        .modal-score-bar {
-            background: rgba(255,255,255,0.03); border-radius: 14px; padding: 14px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.06);
-        }
-        .modal-rank-badge { background: var(--gold); color: #000; font-weight: 900; padding: 6px 12px; border-radius: 8px; font-size: 14px; box-shadow: 0 0 15px rgba(250,204,21,0.4); }
-        .modal-gm-name { font-weight: 800; color: #fff; font-size: 14px; display: flex; align-items: center; gap: 8px; flex: 1; margin-left: 15px; letter-spacing: 1px; }
-        .modal-points { font-family: monospace; font-weight: 700; color: #94a3b8; font-size: 14px; background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
-
-        .modal-tiers-grid {
-            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
-            background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.04);
-        }
-        .tier-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .tier-img-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 12px; border-bottom: 2px solid var(--accent); transition: 0.3s; }
-        .tier-img-box:hover { transform: translateY(-3px); border-color: rgba(139, 92, 246, 0.6); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); }
-        .tier-item img { width: 24px; height: 24px; border-radius: 4px; }
-        .tier-tag {
-            font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 6px;
-            background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #e9d5ff;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); letter-spacing: 0.5px;
-        }
-
+        .card { background: var(--surface); border: 1px solid var(--border); padding: 25px; border-radius: 25px; transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -213,7 +147,6 @@
     <div class="nav-link" onclick="showPage('rankings')">Rankings</div>
     <div class="nav-link" onclick="showPage('testers')">Staff</div>
     <div class="nav-link" onclick="showPage('guide')">Guide</div>
-    <div class="nav-link" onclick="showPage('rules')">Rules</div>
 </nav>
 
 <div id="playerModal"><div class="modal-box" id="modalTarget"></div></div>
@@ -230,7 +163,7 @@
     <div id="rankings" class="page">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
             <h1 style="font-size: 32px; font-family:'Plus Jakarta Sans';">LEADERBOARD</h1>
-            <input type="text" id="pSearch" placeholder="Search legend..." onkeyup="renderPlayers()" style="background:var(--surface); border:1px solid var(--border); padding:14px 20px; border-radius:12px; color:#fff; width:280px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <input type="text" id="pSearch" placeholder="Search legend..." onkeyup="renderPlayers()" style="background:var(--surface); border:1px solid var(--border); padding:14px 20px; border-radius:12px; color:#fff; width:280px;">
         </div>
         <div class="filter-bar">
             <div class="f-item active" onclick="setGM('all')">🏆</div>
@@ -246,21 +179,32 @@
         <div id="player-list"></div>
     </div>
 
-    <div id="testers" class="page"><h1>NETWORK STAFF</h1><div class="card-grid" id="staff-list"></div></div>
+    <div id="testers" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 25px;">
+            <h1 style="font-size: 32px; font-family:'Plus Jakarta Sans';">NETWORK STAFF</h1>
+            <input type="text" id="staffSearch" placeholder="Search staff..." onkeyup="loadStaff()" style="background:#111116; border:1px solid var(--border); padding:12px 20px; border-radius:12px; color:#fff; width:250px;">
+        </div>
+        <div class="staff-grid" id="staff-list"></div>
+    </div>
 
     <div id="guide" class="page">
         <div class="guide-hero">
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <div style="background: rgba(250,204,21,0.1); padding: 25px; border-radius: 20px; border: 1px solid var(--gold);">
+                    <img src="https://i.ibb.co/DD4sjrNB/ATL-icon.png" style="width: 50px;">
+                </div>
+            </div>
             <h1>Complete Guide</h1>
             <p>Your comprehensive resource for understanding testing procedures, queue systems, and detailed gamemode specifications.</p>
             
             <div class="guide-tabs">
-                <div class="g-tab active" id="tab-modes" onclick="switchGuideTab('modes')">Game Modes</div>
-                <div class="g-tab" id="tab-tutorial" onclick="switchGuideTab('tutorial')">Tutorial</div>
+                <div class="g-tab active" id="tab-modes" onclick="switchGuideTab('modes')">⚔️ Game Modes</div>
+                <div class="g-tab" id="tab-tutorial" onclick="switchGuideTab('tutorial')">📘 Tutorial</div>
             </div>
         </div>
 
         <div id="content-modes">
-            <div class="quick-jump-label">Quick Jump:</div>
+            <div style="text-align: center; color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px;">Quick Jump:</div>
             <div class="quick-jump-bar">
                 <a href="#g-sword" class="jump-item"><img src="https://i.ibb.co/4q5XZD1/sword.jpg"> Sword</a>
                 <a href="#g-potion" class="jump-item"><img src="https://i.ibb.co/TqvdKKCg/pot.jpg"> Potion</a>
@@ -272,6 +216,7 @@
                 <a href="#g-mace" class="jump-item"><img src="https://i.ibb.co/DHYd2KcH/mace.jpg"> Mace</a>
             </div>
 
+            <!-- Start of Game Mode Cards -->
             <div class="guide-card" id="g-sword">
                 <div class="guide-card-header">
                     <div class="mode-icon-box"><img src="https://i.ibb.co/4q5XZD1/sword.jpg" style="width:32px;"></div>
@@ -470,40 +415,54 @@
                     </ul>
                 </div>
             </div>
+            <!-- End of Game Mode Cards -->
         </div>
 
         <div id="content-tutorial" style="display: none;">
             <div class="guide-card">
-                <div class="guide-section-label">Getting Started</div>
+                <div class="guide-card-header">
+                    <div class="mode-icon-box" style="border-color: #f87171;"><img src="https://cdn-icons-png.flaticon.com/512/1216/1216575.png" style="width:32px; filter: invert(1);"></div>
+                    <h2>Getting Started</h2>
+                </div>
                 
                 <div class="step-item">
                     <div class="step-number">1</div>
-                    <div class="step-text">Turn on <span class="step-highlight">"Show All Channels"</span> by clicking <span class="step-highlight">Arise Tier List</span> in the top left corner of the server.</div>
+                    <div class="step-text">Turn on <span class="step-highlight">"Show All Channels"</span> by clicking <span class="step-highlight">[1.21+] Arise Tierlist</span> in the top left corner of the server.</div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">2</div>
-                    <div class="step-text">Scroll down and go to <span class="step-highlight">request_test</span></div>
+                    <div class="step-text">Scroll down and go to <span class="step-highlight">#request_test</span></div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">3</div>
-                    <div class="step-text">Click <span style="color:#c084fc; font-weight:bold;">Register / Update Profile</span></div>
+                    <div class="step-text">Click <span style="color:#c084fc; font-weight:800;">Register / Update Profile</span></div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">4</div>
-                    <div class="step-text">Choose your gamemode to <span style="color:var(--gold);">create a ticket</span>.</div>
+                    <div class="step-text">Choose your gamemode to be added to the waitlist.</div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">5</div>
-                    <div class="step-text">Wait patiently until a tester is available and <span style="color:var(--gold);">take your test</span>.</div>
+                    <div class="step-text">Wait patiently until a tester is available and opens queue.</div>
                 </div>
+            </div>
 
-                 <div class="video-container">
-                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/8QFYbL6dRZ4" title="Tutorial: How to get tested in ATL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border:none;"></iframe>
+            <div class="guide-card">
+                <div class="guide-card-header">
+                    <div class="mode-icon-box" style="border-color: #38bdf8;"><img src="https://cdn-icons-png.flaticon.com/512/2082/2082630.png" style="width:32px; filter: invert(1);"></div>
+                    <h2>Queue System</h2>
                 </div>
+                <ul class="guide-list">
+                    <li>Being in the waitlist means you will be tested at some point, not immediately. Please be patient.</li>
+                    <li>Join the queue when a tester pings with a button; it is for players ready to log on now.</li>
+                    <li>If no testers are available, there is no open queue message.</li>
+                    <li>Queues close when no testers remain active. Your position is not saved.</li>
+                    <li>Press leave if you no longer want to be tested.</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -515,6 +474,7 @@
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
     const iconMap = { Crystal: "https://i.ibb.co/Qj6Rzzjn/crystal.jpg", Mace: "https://i.ibb.co/DHYd2KcH/mace.jpg", Sword: "https://i.ibb.co/4q5XZD1/sword.jpg", Nethpot: "https://i.ibb.co/QRjqZ1d/nethpot.jpg", Axe: "https://i.ibb.co/Vc73Q3sV/axe.jpg", SMP: "https://i.ibb.co/zhMLjTFK/smp.jpg", Potion: "https://i.ibb.co/TqvdKKCg/pot.jpg", UHC: "https://i.ibb.co/7tWt3CvQ/uhc.jpg" };
     const tierPoints = { "HT1": 40, "LT1": 32, "HT2": 24, "LT2": 20, "HT3": 16, "LT3": 12, "HT4": 8, "LT4": 4, "HT5": 2, "LT5": 1, "RET": 0 };
+    const rolePriority = ["Founder", "Network Owner", "Manager", "Developer", "Discord Mod", "ScreenSharer", "Sr Tester", "Verified Tester", "Helper"];
 
     let playersData = [], currentGM = 'all';
 
@@ -524,7 +484,7 @@
         if (pts >= 120) return { n: 'Combat Elite', c: 'elite' };
         if (pts >= 60) return { n: 'Combat Veteran', c: 'vet' };
         if (pts >= 20) return { n: 'Apprentice', c: 'app' };
-        return { n: 'Novice', c: 'nov' };
+        return { n: 'Combat Cadet', c: 'nov' };
     }
 
     async function initialize() {
@@ -545,84 +505,88 @@
         } else { filtered.sort((a, b) => b.points - a.points); }
 
         document.getElementById('player-list').innerHTML = filtered.map((p, i) => {
-            const reg = p.region.toLowerCase(), regClass = reg === 'eu' ? 'reg-eu' : reg === 'as' ? 'reg-as' : '';
             const title = getTitle(p.points);
-            return `<div class="rank-row" onclick="openPlayer('${p.ign}', ${i+1})">
+            return `<div class="rank-row" onclick="openPlayer('${p.ign}')">
                 <div style="font-weight:900; color:var(--text-dim);">#${i+1}</div>
                 <div style="display:flex; align-items:center; gap:12px;">
                     <img src="https://mc-heads.net/avatar/${p.ign}/36" style="border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
-                    <div>
-                        <div class="ign-name">${p.ign}</div>
-                        <div class="title-tag ${title.c}">
-                            <svg style="width:10px; height:10px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"/></svg>
-                            ${title.n}
-                        </div>
-                    </div>
+                    <div><div class="ign-name">${p.ign}</div><div class="title-tag ${title.c}">${title.n}</div></div>
                 </div>
                 <div style="font-weight:900; color:var(--gold); font-size: 15px;">${currentGM === 'all' ? p.points : (tierPoints[p.tiers[currentGM]] || 0)} pts</div>
-                <div><span class="reg-tag ${regClass}">${p.region.toUpperCase()}</span></div>
+                <div><span class="reg-tag ${p.region === 'EU' ? 'reg-eu' : 'reg-as'}">${p.region.toUpperCase()}</span></div>
                 <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px;">
-                    ${Object.entries(p.tiers || {}).map(([k,v]) => `
-                        <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:8px; font-size:10px; font-weight:900; color:var(--accent); border:1px solid rgba(139, 92, 246, 0.3);">
-                            <img src="${iconMap[k]}" style="width:14px; height:14px; border-radius:3px;">${v}
-                        </div>
-                    `).join('')}
+                    ${Object.entries(p.tiers || {}).map(([k,v]) => `<div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:8px; font-size:10px; font-weight:900; color:var(--accent); border:1px solid rgba(139, 92, 246, 0.3);"><img src="${iconMap[k]}" style="width:14px; height:14px; border-radius:3px;">${v}</div>`).join('')}
                 </div>
             </div>`;
         }).join('');
     }
 
-   async function loadStaff() {
-    const { data: staff } = await supabaseClient.from('staff').select('*');
-    const grid = document.getElementById('staff-list'); 
-    grid.innerHTML = "";
+    function openPlayer(ign) {
+        const p = playersData.find(x => x.ign === ign);
+        if (!p) return;
+        const title = getTitle(p.points);
+        const overallRank = playersData.sort((a,b) => b.points - a.points).findIndex(x => x.ign === ign) + 1;
+        document.getElementById('modalTarget').innerHTML = `
+            <div style="position:absolute; top:20px; right:25px; cursor:pointer; color:#52525b; font-size:24px;" onclick="closeModal()">×</div>
+            <div class="m-header">
+                <img src="https://mc-heads.net/avatar/${p.ign}/85" style="border-radius:18px; margin-bottom:15px; border:1px solid var(--border);">
+                <div class="m-ign">${p.ign}</div>
+                <div class="m-badge">${title.n}</div>
+                <div style="color: #64748b; font-size: 11px; font-weight: 800; letter-spacing: 1px;">${p.region.toUpperCase()}</div>
+                <a href="https://namemc.com/profile/${p.ign}" target="_blank" style="background:#2563eb; color:#fff; padding:8px 18px; border-radius:10px; text-decoration:none; font-size:13px; font-weight:700; margin-top:15px; display:inline-block;">NameMC →</a>
+            </div>
+            <div class="m-stats-row">
+                <div style="font-weight:800; font-size:14px;"><span style="background:var(--gold); color:#000; padding:4px 8px; border-radius:6px; font-size:12px; margin-right:10px;">#${overallRank}</span> OVERALL</div>
+                <div style="color:#52525b; font-size:14px; font-weight:600;">(${p.points} points)</div>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:15px; justify-items:center; padding:20px; background:rgba(0,0,0,0.2); border-radius:20px;">
+                ${Object.entries(p.tiers || {}).map(([mode, tier]) => `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                        <div style="width:44px; height:44px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; padding:8px;"><img src="${iconMap[mode]}"></div>
+                        <div style="font-size:9px; font-weight:900; padding:2px 8px; border-radius:4px; background:var(--accent); color:#fff;">${tier}</div>
+                    </div>`).join('')}
+            </div>`;
+        document.getElementById('playerModal').style.display = 'flex';
+    }
 
-    // Your Wispbyte IP and Port
-    const API_BASE = "https://arise-proxy.fixoraq008.workers.dev/user";
+    async function loadStaff() {
+        const { data: staff } = await supabaseClient.from('staff').select('*');
+        const grid = document.getElementById('staff-list');
+        const query = document.getElementById('staffSearch').value.toLowerCase();
+        const API_BASE = "https://arise-proxy.fixoraq008.workers.dev/user";
+        let processedStaff = [];
 
-    for (const s of (staff || [])) {
-        let displayName = s.role; // Fallback to DB role
-        let avatarUrl = `https://mc-heads.net/avatar/MHF_Question/50`; // Fallback pfp
-        let statusColor = "#64748b"; // Offline color
-
-        try {
-            const res = await fetch(`${API_BASE}/${s.discord_id}`).then(r => r.json());
-            
-            if (res.success && res.data) {
-                const user = res.data.discord_user;
-                displayName = user.global_name;
-                
-                if (user.avatar) {
-                    avatarUrl = `https://cdn.discordapp.com/avatars/${s.discord_id}/${user.avatar}.png`;
+        for (const s of staff || []) {
+            let info = { ign: s.role, statusText: 'Offline', color: '#52525b', avatar: `https://mc-heads.net/avatar/MHF_Question/50`, rawRole: s.role };
+            try {
+                const res = await fetch(`${API_BASE}/${s.discord_id}`).then(r => r.json());
+                if (res.success && res.data) {
+                    const u = res.data.discord_user; info.ign = u.global_name || u.username;
+                    if(u.avatar) info.avatar = `https://cdn.discordapp.com/avatars/${s.discord_id}/${u.avatar}.png`;
+                    const st = res.data.discord_status;
+                    if(st === 'online') { info.statusText = 'Online'; info.color = '#22c55e'; }
+                    else if(st === 'idle') { info.statusText = 'Idle'; info.color = '#eab308'; }
+                    else if(st === 'dnd') { info.statusText = 'Do Not Disturb'; info.color = '#ef4444'; }
                 }
-
-                // Map status to colors
-                const status = res.data.discord_status;
-                if (status === 'online') statusColor = "#22c55e";
-                if (status === 'dnd') statusColor = "#ef4444";
-                if (status === 'idle') statusColor = "#eab308";
-            }
-        } catch (error) {
-            console.log("Could not reach API for member: " + s.discord_id);
+            } catch(e) {}
+            processedStaff.push(info);
         }
 
-        const isOwner = s.role.toLowerCase().includes('owner');
-        grid.innerHTML += `
-            <div class="card ${isOwner ? 'owner-superior' : ''}" style="display:flex; align-items:center; position:relative;">
-                <div style="position:absolute; top:15px; right:15px; width:10px; height:10px; border-radius:50%; background:${statusColor}; box-shadow: 0 0 10px ${statusColor};"></div>
-                <img src="${avatarUrl}" class="staff-pfp" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/50'">
-                <div>
-                    <h3 style="font-size:18px;">${displayName}</h3>
-                    <p style="font-size:11px; font-weight:900; color:${isOwner ? 'var(--gold)' : 'var(--accent)'}">
-                        ${s.role.toUpperCase()}${isOwner ? ' [FOUNDER]' : ''}
-                    </p>
-                </div>
-            </div>`;
+        processedStaff.sort((a, b) => {
+            const indexA = rolePriority.findIndex(r => a.rawRole.includes(r));
+            const indexB = rolePriority.findIndex(r => b.rawRole.includes(r));
+            return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+        });
+
+        grid.innerHTML = processedStaff.filter(s => s.ign.toLowerCase().includes(query) || s.rawRole.toLowerCase().includes(query)).map(s => `
+            <div class="staff-card">
+                <div class="staff-pfp-box"><img src="${s.avatar}" class="staff-pfp"><div class="status-dot" style="background:${s.color}"></div></div>
+                <div class="staff-info"><div class="staff-name">${s.rawRole.split('|')[0].trim()} | ${s.ign}</div><div class="staff-status-text" style="color:${s.color}">${s.statusText}</div></div>
+            </div>`).join('');
     }
-}
+
     function closeModal() { document.getElementById('playerModal').style.display = 'none'; }
     function setGM(gm) { currentGM = gm; document.querySelectorAll('.f-item').forEach(b => b.classList.toggle('active', b.outerHTML.includes(`'${gm}'`))); renderPlayers(); }
-    
     function showPage(p) { 
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active')); 
         document.getElementById(p).classList.add('active'); 
@@ -637,14 +601,7 @@
         document.getElementById('content-tutorial').style.display = target === 'tutorial' ? 'block' : 'none';
     }
 
-    // Close Modal on outside click
-    window.onclick = function(event) {
-        let modal = document.getElementById('playerModal');
-        if (event.target == modal) {
-            closeModal();
-        }
-    }
-
+    window.onclick = e => { if(e.target == document.getElementById('playerModal')) closeModal(); };
     window.onload = initialize;
 </script>
 </body>
