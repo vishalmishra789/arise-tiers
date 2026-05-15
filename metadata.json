@@ -1,0 +1,8 @@
+{
+  "name": "Arise Tierlist",
+  "description": "Premium Minecraft PvP ranking and testing platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

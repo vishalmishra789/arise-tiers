@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-primary: #FFB800;
+  --color-brand-secondary: #FFD700;
+  --color-brand-accent: #3B82F6;
+  
+  --color-tier-ht1: #FF5555;
+  --color-tier-lt1: #FF5555;
+  --color-tier-ht2: #FF55FF;
+  --color-tier-lt2: #FF55FF;
+  --color-tier-ht3: #5555FF;
+  --color-tier-lt3: #5555FF;
+  --color-tier-ht4: #55FF55;
+  --color-tier-lt4: #55FF55;
+  --color-tier-ht5: #AAAAAA;
+  --color-tier-lt5: #AAAAAA;
+
+  --color-rank-1: #FFD700;
+  --color-rank-2: #C0C0C0;
+  --color-rank-3: #CD7F32;
+}
+
+@layer base {
+  body {
+    @apply bg-[#050505] text-white font-sans antialiased selection:bg-brand-primary selection:text-black;
+  }
+
+  .premium-blur {
+    @apply backdrop-blur-xl bg-black/60 border border-white/10;
+  }
+
+  .glow-gold {
+    text-shadow: 0 0 20px rgba(255, 184, 0, 0.4);
+  }
+
+  .glow-rank-1 {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.1) 20%,
+      rgba(255, 255, 255, 0.2) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}
+
+.markdown-body {
+  @apply text-gray-300 leading-relaxed;
+}
+
+.markdown-body h1, .markdown-body h2 {
+  @apply text-white font-display font-bold mt-6 mb-4;
+}
+
+.markdown-body p {
+  @apply mb-4;
+}
+
+.markdown-body ul {
+  @apply list-disc list-inside mb-4 space-y-2;
+}
+
+.markdown-body li {
+  @apply text-gray-400;
+}
